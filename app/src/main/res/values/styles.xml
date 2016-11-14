@@ -1,0 +1,31 @@
+<resources>
+
+    <!-- TODO:  -->
+    <style name="Messenger.Light" parent="AppTheme">
+    </style>
+
+    <!-- TODO:  -->
+    <style name="Messenger.Dark" parent="AppTheme">
+    </style>
+
+    <!-- No action bar style for registration & intro activity -->
+    <style name="Messenger.Light.NoActionBar" parent="AppTheme">
+        <item name="windowNoTitle">true</item>
+        <item name="windowActionBar">false</item>
+    </style>
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="android:windowContentOverlay">@null</item>
+        <item name="android:windowTranslucentStatus">true</item>
+        <item name="editTextBackground">@android:color/white</item>
+        <item name="editTextColor">@android:color/white</item>
+        <item name="dialog_alert_icon">@mipmap/ic_warning_black_36dp</item>
+        <item name="dialog_info_icon">@mipmap/ic_error_black_36dp</item>
+    </style>
+
+</resources>
