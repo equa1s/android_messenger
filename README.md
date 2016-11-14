@@ -1,1 +1,1 @@
-# Simple messenger for Android devices
+# Simple Android messenger
