@@ -4,6 +4,8 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
+import com.messenger.database.model.DaoSession;
+
 import butterknife.ButterKnife;
 
 /**
@@ -11,18 +13,22 @@ import butterknife.ButterKnife;
  */
 public abstract class BaseActivity extends AppCompatActivity {
 
-    protected abstract void onPreCreate();
+    protected abstract void onPreCreate(DaoSession daoSession);
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        onPreCreate();
+        onPreCreate(daoSession());
         super.onCreate(savedInstanceState);
-        onPostCreate();
         setContentView(setLayout());
         ButterKnife.bind(this);
+        onPostCreate();
     }
 
     protected abstract void onPostCreate();
 
     protected abstract int setLayout();
+
+    private DaoSession daoSession() {
+        return ((ApplicationContext)getApplication()).daoSession();
+    }
 }

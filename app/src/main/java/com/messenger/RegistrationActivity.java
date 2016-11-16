@@ -1,17 +1,25 @@
 package com.messenger;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.messenger.api.controller.RegistrationController;
 import com.messenger.api.service.RegistrationService;
-import com.messenger.database.model.User;
-import com.messenger.util.Dialogs;
+import com.messenger.database.model.DaoSession;
+import com.messenger.database.model.UserEntity;
+import com.messenger.notifications.NotificationManager;
+import com.messenger.preferences.MessengerSharedPreferences;
+import com.messenger.util.NetworkUtil;
 import com.messenger.util.Util;
 
 import butterknife.BindView;
@@ -29,27 +37,37 @@ public class RegistrationActivity
 
     private RegistrationController registrationController;
     private ProgressDialog progressDialog;
+    private UserEntity userEntity;
+
+    private Animation fadeIn;
 
     @BindView(R.id.login_edit_text) EditText loginEditText;
     @BindView(R.id.sign_up_button) Button signUpButton;
+    @BindView(R.id.registration_failed) LinearLayout errorLayout;
+    @BindView(R.id.error_message) TextView errorMessage;
+    @BindView(R.id.error_title) TextView errorTitle;
 
     @Override
-    protected void onPreCreate() {
-        registrationController = new RegistrationController(this);
+    protected void onPreCreate(DaoSession daoSession) {
     }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        registrationController = new RegistrationController(this);
+
         if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle(getString(R.string.RegistrationActivity_title));
         }
+
         signUpButton.setOnClickListener(this);
+
     }
 
     @Override
     protected void onPostCreate() {
-
+        fadeIn = AnimationUtils.loadAnimation(this, R.anim.fade_in);
     }
 
     @Override
@@ -64,38 +82,64 @@ public class RegistrationActivity
             String login = String.valueOf(loginEditText.getText());
 
             if (!Util.isLoginValid(login)) {
-                Dialogs.showAlertDialog(this, getString(R.string.RegistrationActivity_invalid_login_title),
+                handleError(getString(R.string.RegistrationActivity_invalid_login_title),
                         getString(R.string.RegistrationActivity_invalid_login_message));
+                return;
+            }
+
+            if (!NetworkUtil.isNetworkAvailable(this)) {
+                handleError(getString(R.string.RegistrationActivity_network_is_required),
+                        getString(R.string.RegistrationActivity_network_connection_is_absent));
                 return;
             }
 
             progressDialog = ProgressDialog.show(this, getString(R.string.RegistrationActivity_progress_dialog_title),
                     getString(R.string.RegistrationActivity_progress_dialog_message));
 
-            User user = new User();
-                user.setLogin(login);
-                user.setPassword(Util.getSecret(52));
-            // TODO: Send request to server
-            // registrationController.registerUser(user);
+            userEntity = UserEntity.newBuilder()
+                    .login(login)
+                    .password(Util.getSecret(52))
+                    .build();
 
+            registrationController.registerUser(userEntity);
         }
     }
 
     @Override
     public void onSuccess(Response response) {
-        Log.d(TAG, "onSuccess");
+
+        Log.d(TAG, "onSuccess: " + response.message());
+
         progressDialog.dismiss();
-        // TODO: Save user data to shared preferences
-        // Save this user with id;
-        // Start
+
+        MessengerSharedPreferences.setUserLogin(this, userEntity.getLogin());
+        MessengerSharedPreferences.setUserPassword(this, userEntity.getPassword());
+
+        NotificationManager.showNotification(this,
+                getString(R.string.RegistrationActivity_registration_completed),
+                getString(R.string.RegistrationActivity_thank_you_for_registration));
+
+        startActivity(new Intent(this, UserListActivity.class));
+        finish();
     }
 
     @Override
     public void onFailure(Throwable throwable) {
-        Log.d(TAG, "onFailure >> " + throwable.getMessage());
+
+        Log.d(TAG, "onFailure: " + throwable.getMessage());
+
         progressDialog.dismiss();
-        // TODO: Show warning dialog
-        // Dialogs.showAlertDialog();
+
+        handleError(getString(R.string.RegistrationActivity_registration_failed),
+                throwable.getMessage());
+
+    }
+
+    private void handleError(String title, String body) {
+        errorTitle.setText(title);
+        errorMessage.setText(body);
+        errorLayout.setVisibility(View.VISIBLE);
+        errorLayout.startAnimation(fadeIn);
     }
 
 }

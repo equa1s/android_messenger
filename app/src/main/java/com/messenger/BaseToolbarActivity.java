@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 
+import com.messenger.database.model.DaoSession;
 import com.messenger.preferences.MessengerSharedPreferences;
 
 /**
@@ -16,9 +17,17 @@ public abstract class BaseToolbarActivity extends BaseActivity {
     private static final int STATE_NEED_REGISTRATION = 1;
 
     @Override
+    protected void onPreCreate(DaoSession daoSession) {
+    }
+
+    @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         routeApplicationState();
         super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    protected void onPostCreate() {
     }
 
     private void routeApplicationState() {

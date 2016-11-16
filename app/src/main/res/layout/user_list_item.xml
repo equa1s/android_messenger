@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.messenger.UserListItem xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_margin="5dp"
+    android:layout_height="@dimen/contact_item_height">
+
+    <ImageView
+        android:layout_width="@dimen/contact_avatar_height"
+        android:id="@+id/user_avatar"
+        android:padding="10dp"
+        android:layout_height="match_parent"
+        android:src="@mipmap/ic_launcher"/>
+
+    <TextView
+        android:id="@+id/user_login"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:textSize="24sp"
+        android:textColor="@color/user_login_color"
+        android:singleLine="true"
+        android:maxLines="1"
+        tools:text="equals_login"
+        android:gravity="center_vertical"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp" />
+
+</com.messenger.UserListItem>

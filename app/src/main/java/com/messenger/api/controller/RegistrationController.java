@@ -2,9 +2,12 @@ package com.messenger.api.controller;
 
 import com.messenger.api.RetrofitManager;
 import com.messenger.api.exception.NonSuccessfulResponseException;
+import com.messenger.api.exception.RetrofitFailureException;
 import com.messenger.api.service.RegistrationService;
-import com.messenger.database.model.User;
+import com.messenger.database.model.UserEntity;
+import com.messenger.util.Base64;
 
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -22,15 +25,17 @@ public class RegistrationController {
         this.callback = callback;
     }
 
-    public void registerUser(User user) {
-        Call<Response> responseCall = registrationService.createAccount(user);
+    public void registerUser(UserEntity userEntity) {
+        Call<ResponseBody> responseCall = registrationService.createAccount(
+                Base64.encodeBytes((userEntity.getLogin() + ":" + userEntity.getPassword()).getBytes()),
+                userEntity);
         responseCall.enqueue(new RegistrationCallResponse());
     }
 
-    private class RegistrationCallResponse implements Callback<Response> {
+    private class RegistrationCallResponse implements Callback<ResponseBody> {
 
         @Override
-        public void onResponse(Call<Response> call, Response<Response> response) {
+        public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
             if (response.isSuccessful())
                 callback.onSuccess(response);
             else
@@ -38,8 +43,8 @@ public class RegistrationController {
         }
 
         @Override
-        public void onFailure(Call<Response> call, Throwable t) {
-            callback.onFailure(new NonSuccessfulResponseException(t.getMessage()));
+        public void onFailure(Call<ResponseBody> call, Throwable t) {
+            callback.onFailure(new RetrofitFailureException(t.getMessage()));
         }
 
     }

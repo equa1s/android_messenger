@@ -4,9 +4,14 @@
     <!-- RegistrationActivity -->
     <string name="RegistrationActivity_title">Create new account… </string>
     <string name="RegistrationActivity_sign_up">Sign up</string>
-    <string name="RegistrationActivity_invalid_login_title">Login is invalid</string>
+    <string name="RegistrationActivity_invalid_login_title">Login is invalid!</string>
     <string name="RegistrationActivity_invalid_login_message">Login should consists of letters, has length from 6 to 16 symbols, and doesn\'t have special symbols!</string>
     <string name="RegistrationActivity_progress_dialog_title">Creating new account… </string>
     <string name="RegistrationActivity_progress_dialog_message">Please wait while we are checking your login. That will take a moment. </string>
+    <string name="RegistrationActivity_registration_failed">Registration failed!</string>
+    <string name="RegistrationActivity_network_is_required">Network is required!</string>
+    <string name="RegistrationActivity_network_connection_is_absent">Network connection is absent, make sure you are connected to network! </string>
+    <string name="RegistrationActivity_registration_completed">Registration completed!</string>
+    <string name="RegistrationActivity_thank_you_for_registration">"Thank you for registration in our application. Good luck! "</string>
 
 </resources>

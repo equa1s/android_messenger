@@ -1,12 +1,13 @@
 apply plugin: 'com.android.application'
 apply plugin: 'com.jakewharton.butterknife'
+apply plugin: 'org.greenrobot.greendao'
 
 android {
     compileSdkVersion 25
     buildToolsVersion "25.0.0"
     defaultConfig {
 
-        applicationId "messenger.com.messenger"
+        applicationId "com.messenger"
         minSdkVersion 15
         targetSdkVersion 25
         versionCode 1
@@ -24,7 +25,7 @@ android {
             exclude 'META-INF/NOTICE'
         }
 
-        buildConfigField "String", "MESSENGER_URL", "\"https://127.0.0.1\""
+        buildConfigField "String", "MESSENGER_URL", "\"http://127.0.0.1\""
 
     }
     buildTypes {
@@ -49,4 +50,6 @@ dependencies {
     compile 'com.jakewharton:butterknife:8.4.0'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.4.0'
     compile 'com.amulyakhare:com.amulyakhare.textdrawable:1.0.1'
+    compile 'org.greenrobot:greendao:3.2.0'
+    compile 'org.greenrobot:eventbus:3.0.0'
 }

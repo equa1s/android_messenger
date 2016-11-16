@@ -3,6 +3,8 @@ package com.messenger;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 
+import com.messenger.database.model.DaoSession;
+
 
 /**
  * @author equals on 11.11.16.
@@ -11,9 +13,8 @@ public class ConversationListActivity extends BaseToolbarActivity {
 
     private static final String TAG = ConversationListActivity.class.getSimpleName();
 
-
     @Override
-    protected void onPreCreate() {
+    protected void onPreCreate(DaoSession daoSession) {
 
     }
 

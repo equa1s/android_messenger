@@ -9,18 +9,14 @@ import android.support.v7.app.AppCompatActivity;
 /**
  * @author equals on 10.11.16.
  */
-public class IntroActivity extends BaseActivity {
+public class IntroActivity extends AppCompatActivity {
 
-    private static final int DELAY = 5000;
-
-    @Override
-    protected void onPreCreate() {
-
-    }
+    private static final int DELAY = 3000;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.intro_activity);
 
         new Handler().postDelayed(new Runnable() {
             @Override
@@ -31,13 +27,4 @@ public class IntroActivity extends BaseActivity {
         }, DELAY);
     }
 
-    @Override
-    protected void onPostCreate() {
-
-    }
-
-    @Override
-    protected int setLayout() {
-        return R.layout.intro_activity;
-    }
 }

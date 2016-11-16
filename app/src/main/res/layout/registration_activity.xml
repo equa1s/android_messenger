@@ -1,22 +1,84 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/registration_background_color">
+    android:orientation="vertical"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:background="@drawable/registration_bg"
+    android:gravity="center">
 
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:id="@+id/registration_failed"
+        android:visibility="invisible"
+        android:background="@drawable/error_layout_bg"
+        android:padding="20dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginEnd="20dp">
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/registration_failed_layout_title">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:srcCompat="@mipmap/ic_warning_black_36dp"
+                android:id="@+id/imageView3" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/error_title"
+                android:textSize="18sp"
+                android:gravity="center_vertical"
+                android:paddingStart="15dp"
+                android:paddingLeft="15dp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:id="@+id/registration_failed_layout_message"
+            android:padding="5dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:text="Sorry, but current login is using by another userEntity. Please try again with new one. "
+                android:id="@+id/error_message"
+                android:ellipsize="end"
+                android:singleLine="false"
+                android:gravity="center_vertical" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:id="@+id/registration_layout"
-        android:background="@drawable/registration_bg"
-        android:layout_gravity="center"
         android:paddingEnd="20dp"
         android:paddingLeft="20dp"
         android:paddingRight="20dp"
         android:paddingStart="20dp"
-        android:gravity="center">
+        android:layout_gravity="center"
+        android:gravity="center"
+        android:visibility="visible">
 
         <EditText
             android:layout_height="50dp"
@@ -28,7 +90,8 @@
             android:inputType="text"
             android:textSize="25sp"
             android:gravity="center"
-            android:layout_gravity="center"/>
+            android:layout_gravity="center"
+            android:layout_marginTop="30dp" />
 
         <Button
             android:layout_width="wrap_content"
@@ -37,7 +100,7 @@
             android:textSize="25sp"
             android:textAllCaps="false"
             android:text="@string/RegistrationActivity_sign_up"
-            android:layout_marginTop="50dp"
+            android:layout_marginTop="30dp"
             android:background="@drawable/button_selector"
             android:layout_gravity="end"
             android:id="@+id/sign_up_button"
