@@ -119,7 +119,7 @@ public class RegistrationActivity
                 getString(R.string.RegistrationActivity_registration_completed),
                 getString(R.string.RegistrationActivity_thank_you_for_registration));
 
-        startActivity(new Intent(this, UserListActivity.class));
+        startActivity(new Intent(this, MainActivity.class));
         finish();
     }
 

@@ -20,11 +20,18 @@ class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.ViewHolder> {
 
     private List<UserEntity> data = null;
     private LayoutInflater inflater;
+    private UserItemClickListener listener;
 
     static class ViewHolder extends RecyclerView.ViewHolder {
 
-        ViewHolder(final @NonNull View itemView) {
+        ViewHolder(final @NonNull View itemView, final @NonNull UserItemClickListener listener) {
             super(itemView);
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    listener.onUserClick((UserListItem) getItem());
+                }
+            });
         }
 
         BindUserListItem getItem() {
@@ -32,16 +39,18 @@ class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.ViewHolder> {
         }
     }
 
-    UserListAdapter(Context context, List<UserEntity> data) {
+    UserListAdapter(Context context, List<UserEntity> data, UserItemClickListener listener) {
         this.data = data;
         this.inflater = LayoutInflater.from(context);
+        this.listener = listener;
+
         setHasStableIds(true);
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         UserListItem userListItem =  (UserListItem) inflater.inflate(R.layout.user_list_item, parent, false);
-        return new ViewHolder(userListItem);
+        return new ViewHolder(userListItem, listener);
     }
 
     @Override
@@ -75,6 +84,10 @@ class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.ViewHolder> {
                 return userEntity0.getLogin().compareTo(userEntity1.getLogin());
             }
         });
+    }
+
+    interface UserItemClickListener {
+        void onUserClick(UserListItem user);
     }
 
 }

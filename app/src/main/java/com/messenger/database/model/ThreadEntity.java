@@ -2,6 +2,8 @@ package com.messenger.database.model;
 
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Generated;
+import org.greenrobot.greendao.annotation.Id;
+import org.greenrobot.greendao.annotation.Property;
 
 /**
  * @author equals on 16.11.16.
@@ -9,7 +11,11 @@ import org.greenrobot.greendao.annotation.Generated;
 @Entity(nameInDb = "threads")
 public class ThreadEntity {
 
+    @Id(autoincrement = true)
+    @Property(nameInDb = "thread_id")
     private long threadId;
+
+    @Property(nameInDb = "user_login")
     private String userId;
 
     private ThreadEntity(Builder builder) {

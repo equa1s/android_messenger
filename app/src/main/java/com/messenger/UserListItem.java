@@ -52,4 +52,7 @@ public class UserListItem
             userEntity = null;
     }
 
+    public UserEntity getUserEntity() {
+        return userEntity;
+    }
 }

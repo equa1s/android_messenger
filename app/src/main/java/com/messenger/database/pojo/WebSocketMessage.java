@@ -9,12 +9,14 @@ public class WebSocketMessage {
 
     @JsonProperty("body") private String body;
     @JsonProperty("sender") private String sender;
+    @JsonProperty("recipient") private String recipient;
     @JsonProperty("sent_date") private long dateSent;
     @JsonProperty("received_date") private long dateReceived;
 
     private WebSocketMessage(Builder builder) {
         body = builder.body;
         sender = builder.sender;
+        recipient = builder.recipient;
         dateSent = builder.dateSent;
         dateReceived = builder.dateReceived;
     }
@@ -27,6 +29,10 @@ public class WebSocketMessage {
         return sender;
     }
 
+    public String getRecipient() {
+        return recipient;
+    }
+
     public long getDateSent() {
         return dateSent;
     }
@@ -36,9 +42,9 @@ public class WebSocketMessage {
     }
 
     public static final class Builder {
-
         private String body;
         private String sender;
+        private String recipient;
         private long dateSent;
         private long dateReceived;
 
@@ -52,6 +58,11 @@ public class WebSocketMessage {
 
         public Builder sender(String sender) {
             this.sender = sender;
+            return this;
+        }
+
+        public Builder recipient(String recipient) {
+            this.recipient = recipient;
             return this;
         }
 

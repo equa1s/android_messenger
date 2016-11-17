@@ -5,13 +5,12 @@ import android.support.annotation.Nullable;
 
 import com.messenger.database.model.DaoSession;
 
-
 /**
- * @author equals on 11.11.16.
+ * @author equals on 16.11.16.
+ * TODO: search user by using search bar
  */
-public class ConversationListActivity extends BaseToolbarActivity {
+public class NewUserActivity extends BaseActivity {
 
-    private static final String TAG = ConversationListActivity.class.getSimpleName();
 
     @Override
     protected void onPreCreate(DaoSession daoSession) {
@@ -30,7 +29,6 @@ public class ConversationListActivity extends BaseToolbarActivity {
 
     @Override
     protected int setLayout() {
-        return R.layout.conversation_list_activity;
+        return R.layout.new_user_activity;
     }
-
 }
