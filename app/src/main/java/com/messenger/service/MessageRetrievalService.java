@@ -1,58 +1,56 @@
 package com.messenger.service;
 
-import android.app.Service;
 import android.content.Intent;
-import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.support.annotation.Nullable;
-import android.util.Log;
 
+import com.messenger.database.model.DaoSession;
+import com.messenger.database.model.MessageEntity;
+import com.messenger.database.model.ThreadEntity;
+import com.messenger.database.model.ThreadEntityDao;
+import com.messenger.database.pojo.WebSocketIncomingMessage;
 import com.messenger.database.pojo.WebSocketMessage;
+import com.messenger.database.pojo.WebSocketOutgoingMessage;
+import com.messenger.events.IncomingMessageEvent;
 import com.messenger.events.MessageEvent;
+import com.messenger.events.OutgoingMessageEvent;
 import com.messenger.util.JsonUtils;
 
 import org.greenrobot.eventbus.EventBus;
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import okhttp3.RequestBody;
-import okhttp3.Response;
 import okhttp3.ws.WebSocket;
-import okio.Buffer;
 
 /**
  * @author equals on 16.11.16.
- *
- * TODO: create web socket connection & start it when user start chatting
  */
-public class MessageRetrievalService extends Service implements WebSocketConnection.WebSocketMessageListener {
+public class MessageRetrievalService
+        extends BaseService
+         implements WebSocketConnection.WebSocketMessageReceiver {
 
     private static final String TAG = MessageRetrievalService.class.getSimpleName();
 
     public static final int SEND_MESSAGE_ACTION = 0;
-    public static final int RECEIVE_MESSAGE_ACTION = 1;
 
     private WebSocketConnection webSocketConnection;
-    private final Messenger mMessenger = new Messenger(new MessageHandler(this));
-
-    public MessageRetrievalService() {
-        webSocketConnection = new WebSocketConnection(this);
-    }
+    private Messenger mMessenger;
 
     @Override
-    public void onCreate() {
+    public void onCreate(DaoSession daoSession) {
         super.onCreate();
+        webSocketConnection = new WebSocketConnection(this);
+        mMessenger = new Messenger(new MessageHandler(this));
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        return super.onStartCommand(intent, flags, startId);
+        return START_STICKY;
     }
 
     @Nullable
@@ -61,58 +59,74 @@ public class MessageRetrievalService extends Service implements WebSocketConnect
         return mMessenger.getBinder();
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
+    /** Sends message through {@link WebSocket} connection
+     * @param webSocketOutgoingMessage outgoing message to another user
+     */
+    public void sendMessage(WebSocketOutgoingMessage webSocketOutgoingMessage) throws IOException {
+        MessageEntity messageEntity = new MessageReader(webSocketOutgoingMessage).getOutgoingMessage();
+        daoSession().getMessageEntityDao().insert(messageEntity);
+        sendEvent(new OutgoingMessageEvent(webSocketOutgoingMessage));
+        webSocketConnection.sendMessage(RequestBody.create(WebSocket.TEXT, JsonUtils.toJson(webSocketOutgoingMessage)));
     }
-
-    // TODO: send message to another recipient through {@link WebSocket.java}
 
     /**
-     * Sends message to another user
-     * @param webSocketMessage
+     * Receives a message from another user through {@link WebSocket} connection
+     * @param webSocketMessage received from sender
      */
-    public void sendMessage(WebSocketMessage webSocketMessage) throws IOException {
-        // TODO: insert SENT message to database
-        sendMessage(new MessageEvent(webSocketMessage));
-        webSocketConnection.getWebSocket().sendMessage(RequestBody.create(WebSocket.TEXT, JsonUtils.toJson(webSocketMessage)));
-    }
-
     @Override
-    public void onMessage(WebSocketMessage webSocketMessage) {
-        // TODO: insert RECEIVED message to database
-        sendMessage(new MessageEvent(webSocketMessage));
+    public void onMessage(WebSocketIncomingMessage webSocketMessage) {
+        MessageEntity messageEntity = new MessageReader(webSocketMessage).getIncomingMessageEntity();
+        daoSession().getMessageEntityDao().insert(messageEntity);
+        sendEvent(new IncomingMessageEvent(webSocketMessage));
     }
 
-    @Override
-    public void onClose(int code, String reason) {
-
-    }
-
-//    @Override
-//    public void onPong(Buffer payload) {
-//
-//    }
-//
-//    @Override
-//    public void onFailure(IOException e, Response response) {
-//
-//    }
-//
-//    @Override
-//    public void onOpen(final WebSocket webSocket, Response response) {
-//        Log.d(TAG, "Open connection...");
-//    }
-
-    private void sendMessage(MessageEvent messageEvent) {
+    private void sendEvent(MessageEvent messageEvent) {
         EventBus.getDefault().post(messageEvent);
+    }
+
+    public class MessageReader {
+
+        private WebSocketMessage webSocketMessage;
+        private ThreadEntityDao threadEntityDao;
+
+        MessageReader(WebSocketMessage webSocketMessage) {
+            this.webSocketMessage = webSocketMessage;
+            this.threadEntityDao = daoSession().getThreadEntityDao();
+        }
+
+        MessageEntity getIncomingMessageEntity() {
+            WebSocketIncomingMessage incomingMessage = (WebSocketIncomingMessage) webSocketMessage;
+            ThreadEntity threadEntity = (ThreadEntity) threadEntityDao.queryRaw("from = ?", incomingMessage.getSender());
+            return new MessageEntity.Builder()
+                    .body(incomingMessage.getBody())
+                    .from(incomingMessage.getSender())
+                    .receivedTime(incomingMessage.getDateReceived())
+                    .sentTime(incomingMessage.getDateSent())
+                    .type(MessageEntity.INCOMING)
+                    .threadId(threadEntity.getThreadId())
+                    .build();
+        }
+
+        MessageEntity getOutgoingMessage() {
+            WebSocketOutgoingMessage outgoingMessage = (WebSocketOutgoingMessage) webSocketMessage;
+            ThreadEntity threadEntity = (ThreadEntity) threadEntityDao.queryRaw("from = ?", outgoingMessage.getRecipient());
+            return new MessageEntity.Builder()
+                    .body(outgoingMessage.getBody())
+                    .from(outgoingMessage.getRecipient())
+                    .receivedTime(outgoingMessage.getDateReceived())
+                    .sentTime(outgoingMessage.getDateSent())
+                    .type(MessageEntity.OUTGOING)
+                    .threadId(threadEntity.getThreadId())
+                    .build();
+        }
+
     }
 
     private static class MessageHandler extends Handler {
 
         private final WeakReference<MessageRetrievalService> mMessageService;
 
-        public MessageHandler(MessageRetrievalService mMessageService) {
+        MessageHandler(MessageRetrievalService mMessageService) {
             this.mMessageService = new WeakReference<>(mMessageService);
         }
 
@@ -123,7 +137,7 @@ public class MessageRetrievalService extends Service implements WebSocketConnect
 
                 case SEND_MESSAGE_ACTION:
                     try {
-                        mMessageService.sendMessage((WebSocketMessage)msg.obj);
+                        mMessageService.sendMessage((WebSocketOutgoingMessage)msg.obj);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }

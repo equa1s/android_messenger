@@ -12,6 +12,7 @@
         android:supportsRtl="true"
         android:name=".ApplicationContext"
         android:theme="@style/Messenger.Light" >
+
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -28,14 +29,16 @@
             android:screenOrientation="portrait"
             android:theme="@style/Messenger.Light.NoActionBar" />
 
+        <activity android:name=".NewUserActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Messenger.Light.NoActionBar" />
 
-        <activity android:name=".ConversationListFragment"
+        <activity android:name=".ConversationActivity"
             android:screenOrientation="portrait"
             android:theme="@style/Messenger.Light" />
 
-        <activity android:name=".NewUserActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/Messenger.Light"/>
+        <service android:name=".service.MessageRetrievalService"
+            android:enabled="true" />
 
     </application>
 

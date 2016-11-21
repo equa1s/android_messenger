@@ -25,7 +25,7 @@ public class RegistrationController {
         this.callback = callback;
     }
 
-    public void registerUser(UserEntity userEntity) {
+    public void register(UserEntity userEntity) {
         Call<ResponseBody> responseCall = registrationService.createAccount(
                 Base64.encodeBytes((userEntity.getLogin() + ":" + userEntity.getPassword()).getBytes()),
                 userEntity);

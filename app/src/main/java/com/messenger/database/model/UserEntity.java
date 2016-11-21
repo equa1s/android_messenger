@@ -82,7 +82,7 @@ public class UserEntity {
         private String login;
         private String password;
 
-        private Builder() {
+        public Builder() {
         }
 
         /**

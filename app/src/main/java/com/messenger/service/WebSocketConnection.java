@@ -1,7 +1,10 @@
 package com.messenger.service;
 
 
-import com.messenger.database.pojo.WebSocketMessage;
+import android.util.Log;
+
+import com.messenger.BuildConfig;
+import com.messenger.database.pojo.WebSocketIncomingMessage;
 import com.messenger.util.JsonUtils;
 
 import java.io.IOException;
@@ -9,6 +12,7 @@ import java.util.concurrent.TimeUnit;
 
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import okhttp3.ws.WebSocket;
@@ -19,65 +23,68 @@ import okio.Buffer;
 /**
  * @author equals on 17.11.16.
  */
-
 public class WebSocketConnection implements WebSocketListener {
 
-    private WebSocketMessageListener webSocketMessageListener;
+    private static final String TAG = WebSocketConnection.class.getSimpleName();
+    private WebSocketMessageReceiver mWebSocketMessageReceiver;
     private WebSocket webSocket;
 
-    public WebSocketConnection(WebSocketMessageListener webSocketMessageListener) {
-        this.webSocketMessageListener = webSocketMessageListener;
+    WebSocketConnection(WebSocketMessageReceiver mWebSocketMessageReceiver) {
+        this.mWebSocketMessageReceiver = mWebSocketMessageReceiver;
 
         OkHttpClient client = new OkHttpClient.Builder()
-                .readTimeout(0,  TimeUnit.MILLISECONDS)
+                .readTimeout(0, TimeUnit.MILLISECONDS)
                 .build();
 
         // TODO: set web socket url
         Request request = new Request.Builder()
-                .url("web socket url")
+                .url(BuildConfig.MESSENGER_URL + "/ws")
                 .build();
 
         WebSocketCall.create(client, request).enqueue(this);
-
-        // TODO: shutdown web socket
-        // client.dispatcher().executorService().shutdown();
     }
 
-    public WebSocket getWebSocket() {
-        return webSocket;
+    public void sendMessage(RequestBody requestBody) throws IOException {
+        webSocket.sendMessage(requestBody);
     }
 
     @Override
     public void onOpen(final WebSocket webSocket, Response response) {
         this.webSocket = webSocket;
-//        if (webSocketMessageListener != null) webSocketMessageListener.onOpen(webSocket, response);
     }
 
     @Override
     public void onFailure(IOException e, Response response) {
-//        if (webSocketMessageListener != null) webSocketMessageListener.onFailure(e, response);
+        Log.d(TAG, "Failed: " + e.getMessage());
     }
 
     @Override
     public void onMessage(ResponseBody message) throws IOException {
-//        if (webSocketMessageListener != null) webSocketMessageListener.onMessage(JsonUtils.fromJson(message.bytes(), WebSocketMessage.class));
+        Log.d(TAG, "Received message: " + message.string());
+        if (mWebSocketMessageReceiver != null) mWebSocketMessageReceiver.onMessage(JsonUtils.fromJson(message.bytes(), WebSocketIncomingMessage.class));
+
+        // INFO : See issue on > https://github.com/square/okhttp/issues/2303#issuecomment-187696928
+        message.close();
     }
 
     @Override
     public void onPong(Buffer payload) {
-//        if (webSocketMessageListener != null) webSocketMessageListener.onPong(payload);
+        Log.d(TAG, "Pong: " + payload.readUtf8());
     }
 
     @Override
     public void onClose(int code, String reason) {
-        if (webSocketMessageListener != null) webSocketMessageListener.onClose(code, reason);
+        try {
+            webSocket.close(code, reason);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
-    interface WebSocketMessageListener {
-        void onMessage(WebSocketMessage webSocketMessage);
-        void onClose(int code, String reason);
-//        void onPong(Buffer payload);
-//        void onFailure(IOException e, Response response);
+    interface WebSocketMessageReceiver {
 //        void onOpen(final WebSocket webSocket, Response response);
+        void onMessage(WebSocketIncomingMessage webSocketIncomingMessage);
+//        void onClose(int code, String reason);
+//        void onFailure(IOException e, Response response);
     }
 }

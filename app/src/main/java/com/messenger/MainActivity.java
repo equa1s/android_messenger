@@ -13,13 +13,15 @@ public class MainActivity extends BaseActivity {
     private static final String TAG = MainActivity.class.getSimpleName();
 
     @Override
-    protected void onPreCreate(DaoSession daoSession) {}
+    protected void onPreCreate(DaoSession daoSession) {
+
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        initFragment(R.id.container, UserListFragment.getInstance(), null);
 
+        initFragment(R.id.container, UserListFragment.getInstance(), null);
     }
 
     @Override
@@ -29,6 +31,7 @@ public class MainActivity extends BaseActivity {
 
     @Override
     protected void onPostCreate() {
+
     }
 
 }

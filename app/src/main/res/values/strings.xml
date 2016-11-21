@@ -13,5 +13,6 @@
     <string name="RegistrationActivity_network_connection_is_absent">Network connection is absent, make sure you are connected to network! </string>
     <string name="RegistrationActivity_registration_completed">Registration completed!</string>
     <string name="RegistrationActivity_thank_you_for_registration">"Thank you for registration in our application. Good luck! "</string>
+    <string name="search">Search</string>
 
 </resources>

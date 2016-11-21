@@ -101,7 +101,7 @@ public class RegistrationActivity
                     .password(Util.getSecret(52))
                     .build();
 
-            registrationController.registerUser(userEntity);
+            registrationController.register(userEntity);
         }
     }
 
