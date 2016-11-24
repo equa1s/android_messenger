@@ -13,9 +13,11 @@ import android.support.annotation.Nullable;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.View;
+import android.widget.EditText;
 
 import com.messenger.animation.FadeInAnimator;
-import com.messenger.database.model.DaoSession;
+import com.messenger.database.MessengerDatabaseHelper;
 import com.messenger.database.model.MessageEntity;
 import com.messenger.database.model.MessageEntityDao;
 import com.messenger.database.model.ThreadEntity;
@@ -24,9 +26,11 @@ import com.messenger.database.pojo.WebSocketIncomingMessage;
 import com.messenger.database.pojo.WebSocketMessage;
 import com.messenger.database.pojo.WebSocketOutgoingMessage;
 import com.messenger.events.IncomingMessageEvent;
+import com.messenger.events.MessageEvent;
+import com.messenger.events.OutgoingMessageEvent;
 import com.messenger.notifications.MessageNotifier;
 import com.messenger.notifications.NotificationManager;
-import com.messenger.service.MessageRetrievalService;
+import com.messenger.service.MessageService;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -37,36 +41,41 @@ import java.util.Date;
 import java.util.List;
 
 import butterknife.BindView;
-import butterknife.OnClick;
 
 
 /**
+ * Activity for displaying message thread with specified user
+ * also send and receive messages.
+ *
  * @author equals on 15.11.16.
  */
-public class ConversationActivity extends BaseActivity {
+public class ConversationActivity extends BaseToolbarActivity implements View.OnClickListener {
 
     private static final String TAG = ConversationActivity.class.getSimpleName();
 
-    public static final String USER_LOGIN = "user_login";
+    public static final String RECIPIENT_LOGIN = "recipient_login";
+
+    @BindView(R.id.recycler_view) RecyclerView mRecyclerView;
+    @BindView(R.id.message_input_panel) EditText mInputPanel;
+
     private Messenger mMessageRetrievalService;
     private ConversationAdapter mConversationAdapter;
-    @BindView(R.id.recycler_view) RecyclerView recyclerView;
-    private String userLogin;
-    private List<MessageEntity> messages;
-    private DaoSession daoSession;
-    private long threadId;
+    private String mRecipient;
+    private List<MessageEntity> mMessages;
+    private MessengerDatabaseHelper mMessengerDatabaseHelper;
+    private long mThreadId;
     boolean mBound = false;
 
     @Override
     protected void onStart() {
         super.onStart();
         EventBus.getDefault().register(this);
-        bindService(new Intent(this, MessageRetrievalService.class), mConnection, Context.BIND_AUTO_CREATE);
+        bindService(new Intent(this, MessageService.class), mConnection, Context.BIND_AUTO_CREATE);
     }
 
     @Override
-    protected void onPreCreate(DaoSession daoSession) {
-        this.daoSession = daoSession;
+    protected void onPreCreate(MessengerDatabaseHelper mMessengerDatabaseHelper) {
+        this.mMessengerDatabaseHelper = mMessengerDatabaseHelper;
     }
 
     @Override
@@ -75,21 +84,21 @@ public class ConversationActivity extends BaseActivity {
 
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
-            userLogin = bundle.getString(USER_LOGIN);
+            mRecipient = bundle.getString(RECIPIENT_LOGIN);
         }
 
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle(userLogin);
+            getSupportActionBar().setTitle(mRecipient);
         }
 
         loadMessages();
     }
 
     private void setRecyclerView() {
-        recyclerView.setHasFixedSize(true);
-        recyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-        recyclerView.setItemAnimator(new FadeInAnimator());
-        recyclerView.setAdapter(mConversationAdapter);
+        mRecyclerView.setHasFixedSize(true);
+        mRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+        mRecyclerView.setItemAnimator(new FadeInAnimator());
+        mRecyclerView.setAdapter(mConversationAdapter);
     }
 
     @Override
@@ -102,7 +111,7 @@ public class ConversationActivity extends BaseActivity {
         MessageNotifier.setVisibleThread(getThreadId());
 
         // init adapter
-        mConversationAdapter = new ConversationAdapter(this, messages);
+        mConversationAdapter = new ConversationAdapter(this, mMessages);
 
         // init recycler
         setRecyclerView();
@@ -120,57 +129,83 @@ public class ConversationActivity extends BaseActivity {
         }
     }
 
-    private void reloadAdapter() {
+    @SuppressWarnings("unused")
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onMessageEvent(MessageEvent messageEvent) {
+
+        if (messageEvent instanceof OutgoingMessageEvent) {
+            // get outgoing message
+            WebSocketOutgoingMessage webSocketOutgoingMessage = (WebSocketOutgoingMessage) messageEvent.getMessage();
+            // just reload view because we see current conversation
+            reload();
+        } else if (messageEvent instanceof IncomingMessageEvent) {
+            // get incoming message
+            WebSocketIncomingMessage webSocketIncomingMessage = (WebSocketIncomingMessage) messageEvent.getMessage();
+            // if conversation is not visible
+            if (!MessageNotifier.isVisibleThread(mThreadId)) {
+                // then notify user about new message
+                NotificationManager.showNotification(this, webSocketIncomingMessage.getSender(),
+                        webSocketIncomingMessage.getBody());
+            } else {
+                // otherwise just reload an adapter
+                reload();
+            }
+        }
+    }
+
+    /**
+     * Load messages from database
+     * and redraw conversation adapter
+     */
+    private void reload() {
         loadMessages();
         // INFO~ use notifyDataSetChanged or ...
         mConversationAdapter.notifyDataSetChanged();
 
         // INFO~ ... create new instance of mConversationAdapter
-        // mConversationAdapter = new ConversationAdapter(this, messages);
+        // mConversationAdapter = new ConversationAdapter(this, mMessages);
     }
 
-    @SuppressWarnings("unused")
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onMessageEvent(IncomingMessageEvent messageEvent) {
-
-        WebSocketIncomingMessage webSocketIncomingMessage = messageEvent.getMessage();
-
-        if (MessageNotifier.isVisibleThread(threadId)) {
-            // if this thread is visible redraw adapter
-            reloadAdapter();
-        } else {
-            // send notification
-            // TODO: add actions to notification
-            NotificationManager.showNotification(this, webSocketIncomingMessage.getSender(),
-                    webSocketIncomingMessage.getBody());
-        }
-    }
 
     private List<MessageEntity> loadMessages() {
-        QueryBuilder<MessageEntity> messageEntityQueryBuilder = daoSession.getMessageEntityDao().queryBuilder();
-        messageEntityQueryBuilder.where(MessageEntityDao.Properties.From.eq(userLogin));
+        QueryBuilder<MessageEntity> messageEntityQueryBuilder = mMessengerDatabaseHelper.getMessageEntityDao().queryBuilder();
+        messageEntityQueryBuilder.where(MessageEntityDao.Properties.From.eq(mRecipient));
 
-        messages = messageEntityQueryBuilder.list();
+        mMessages = messageEntityQueryBuilder.list();
 
-        return messages;
+        return mMessages;
     }
 
     private long getThreadId() {
-        QueryBuilder<ThreadEntity> threadEntityQueryBuilder = daoSession.getThreadEntityDao().queryBuilder();
-        threadEntityQueryBuilder.where(ThreadEntityDao.Properties.UserId.eq(userLogin));
+        QueryBuilder<ThreadEntity> threadEntityQueryBuilder = mMessengerDatabaseHelper.getThreadEntityDao().queryBuilder();
+        threadEntityQueryBuilder.where(ThreadEntityDao.Properties.UserId.eq(mRecipient));
 
-        threadId = threadEntityQueryBuilder.unique().getThreadId();
+        mThreadId = threadEntityQueryBuilder.unique().getThreadId();
 
-        return threadId;
+        return mThreadId;
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.message_send_button:
+
+                String mMessage = mInputPanel.getText().toString();
+
+                if (!mMessage.isEmpty()) {
+                    sendMessage(mMessage);
+                }
+                break;
+
+            default:
+                break;
+        }
     }
 
     /**
-     * TODO: bind {@link android.widget.Button} to this method
-     * - add message to db
-     * - redraw adapter
-     * @param message body
+     * Compose & sends message to recipient
+     * @param message that will be send to recipient
      */
-    @OnClick()
     private void sendMessage(String message) {
         if (mBound) {
             Date currentDate = new Date();
@@ -180,12 +215,12 @@ public class ConversationActivity extends BaseActivity {
                     .body(message)
                     .dateSent(currentDateMillis)
                     .dateReceived(currentDateMillis)
-                    .recipient(userLogin)
+                    .recipient(mRecipient)
                     .build();
 
             Message msg = Message.obtain();
                 msg.obj = webSocketMessage;
-                msg.what = MessageRetrievalService.SEND_MESSAGE_ACTION;
+                msg.what = MessageService.SEND_MESSAGE_ACTION;
             try {
                 mMessageRetrievalService.send(msg);
             } catch (RemoteException e) {

@@ -8,6 +8,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.messenger.database.model.UserEntity;
+import com.messenger.ui.BindUserListItem;
+import com.messenger.ui.UserListItem;
 
 import java.util.Collections;
 import java.util.Comparator;

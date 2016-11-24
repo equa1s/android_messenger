@@ -1,4 +1,4 @@
-package com.messenger;
+package com.messenger.ui;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -7,11 +7,15 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.amulyakhare.textdrawable.TextDrawable;
+import com.messenger.R;
 import com.messenger.database.model.UserEntity;
-import com.messenger.util.ColorUtil;
+import com.messenger.util.TextUtil;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 /**
+ * View that presents user entity
  * @author equals on 15.11.16.
  */
 public class UserListItem
@@ -19,8 +23,9 @@ public class UserListItem
          implements BindUserListItem {
 
     private UserEntity userEntity;
-    private ImageView avatar;
-    private TextView login;
+
+    @BindView(R.id.user_avatar) ImageView avatar;
+    @BindView(R.id.user_login) TextView login;
 
     public UserListItem(Context context) {
         super(context);
@@ -33,16 +38,15 @@ public class UserListItem
     @Override
     protected void onFinishInflate() {
         super.onFinishInflate();
-        this.avatar = (ImageView) findViewById(R.id.user_avatar);
-        this.login = (TextView) findViewById(R.id.user_login);
+        // INFO : See https://github.com/JakeWharton/butterknife/issues/138#issuecomment-70369393
+        ButterKnife.bind(this);
     }
 
     @Override
     public void bind(@NonNull UserEntity userEntity) {
         this.userEntity = userEntity;
-        TextDrawable drawable = TextDrawable.builder()
-                .buildRound(String.valueOf(userEntity.getLogin().charAt(0)), ColorUtil.getRandomColor());
-        avatar.setImageDrawable(drawable);
+
+        avatar.setImageDrawable(TextUtil.getTextDrawable(userEntity.getLogin()));
         login.setText(userEntity.getLogin());
     }
 

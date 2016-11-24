@@ -1,5 +1,7 @@
 package com.messenger.database.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.Index;
@@ -17,6 +19,7 @@ import org.greenrobot.greendao.annotation.Transient;
 public class UserEntity {
 
     @Id(autoincrement = true)
+    @JsonIgnore
     private long id;
     @Property(nameInDb = "login")
     private String login;

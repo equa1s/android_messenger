@@ -17,8 +17,12 @@ import retrofit2.http.POST;
 public interface RegistrationService {
 
     @Headers("UserEntity-Agent: Messenger")
-    @POST("/signup")
-    Call<ResponseBody> createAccount(@Header("Authorization") String authorization, @Body UserEntity userEntity);
+    @POST("/reg")
+    Call<ResponseBody> signUp(@Header("Authorization") String auth, @Body UserEntity userEntity);
+
+    @Headers("UserEntity-Agent: Messenger")
+    @POST("/login")
+    Call<ResponseBody> signIn(@Header("Authorization") String auth, @Body UserEntity userEntity);
 
     interface Callback extends BaseRetrofitCallback {
         void onSuccess(Response response);

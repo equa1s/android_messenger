@@ -1,7 +1,8 @@
 <resources>
 
     <!-- TODO:  -->
-    <style name="Messenger.Light" parent="AppTheme">
+    <style name="Messenger.Light" parent="Messenger.Light.NoActionBar">
+        
     </style>
 
     <!-- TODO:  -->
@@ -20,12 +21,20 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="android:windowContentOverlay">@null</item>
-        <item name="android:windowTranslucentStatus">true</item>
+        <!--<item name="android:windowContentOverlay">@null</item>-->
+        <!--<item name="android:windowTranslucentStatus">true</item>-->
         <item name="editTextBackground">@android:color/white</item>
         <item name="editTextColor">@android:color/white</item>
         <item name="dialog_alert_icon">@mipmap/ic_warning_black_36dp</item>
         <item name="dialog_info_icon">@mipmap/ic_error_black_36dp</item>
+    </style>
+
+    <style name="Messenger.Light.UserLoginTitle">
+        <item name="android:textSize">25sp</item>
+    </style>
+
+    <style name="Messenger.Light.UserLoginSubtitle">
+        <item name="android:textSize">17sp</item>
     </style>
 
 </resources>

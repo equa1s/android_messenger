@@ -1,18 +1,60 @@
 <resources>
     <string name="app_name">Messenger</string>
+    <string name="search">Search</string>
 
     <!-- RegistrationActivity -->
-    <string name="RegistrationActivity_title">Create new account… </string>
-    <string name="RegistrationActivity_sign_up">Sign up</string>
-    <string name="RegistrationActivity_invalid_login_title">Login is invalid!</string>
-    <string name="RegistrationActivity_invalid_login_message">Login should consists of letters, has length from 6 to 16 symbols, and doesn\'t have special symbols!</string>
-    <string name="RegistrationActivity_progress_dialog_title">Creating new account… </string>
-    <string name="RegistrationActivity_progress_dialog_message">Please wait while we are checking your login. That will take a moment. </string>
-    <string name="RegistrationActivity_registration_failed">Registration failed!</string>
-    <string name="RegistrationActivity_network_is_required">Network is required!</string>
-    <string name="RegistrationActivity_network_connection_is_absent">Network connection is absent, make sure you are connected to network! </string>
-    <string name="RegistrationActivity_registration_completed">Registration completed!</string>
-    <string name="RegistrationActivity_thank_you_for_registration">"Thank you for registration in our application. Good luck! "</string>
-    <string name="search">Search</string>
+    <string name="RegistrationActivity__title">Create new account… </string>
+    <string name="RegistrationActivity__sign_up">Sign up</string>
+    <string name="RegistrationActivity__invalid_login_title">Login is invalid!</string>
+    <string name="RegistrationActivity__invalid_login_message">Login should consists of letters, has length from 6 to 16 symbols, and doesn\'t have special symbols!</string>
+    <string name="RegistrationActivity__progress_dialog_sign_up_title">Creating new account… </string>
+    <string name="RegistrationActivity__progress_dialog_sign_up_message">Please wait while we are checking your login. That will take a moment. </string>
+    <string name="RegistrationActivity__sign_in_sign_up_failed">Sign in/Sign up has failed!</string>
+    <string name="RegistrationActivity__network_is_required">Network is required!</string>
+    <string name="RegistrationActivity__network_connection_is_absent">Network connection is absent, make sure you are connected to network! </string>
+    <string name="RegistrationActivity__registration_completed">Registration completed!</string>
+    <string name="RegistrationActivity__thank_you_for_registration">"Thank you for registration in our application. Good luck! "</string>
+    <string name="RegistrationActivity__login">Login</string>
+    <string name="RegistrationActivity__password">Password</string>
+    <string name="RegistrationActivity__sign_in">Sign in</string>
+    <string name="RegistrationActivity__divider">/</string>
+    <string name="RegistrationActivity__password_is_invalid">Password is invalid</string>
+    <string name="RegistrationActivity__password_is_invalid_message">Password shouldn\'t consists from special symbols</string>
+    <string name="RegistrationActivity__progress_dialog_sign_in_title">Signing... </string>
+    <string name="RegistrationActivity__progress_dialog_sign_in_message">"Wait please while we're checking your credentials! This can take a while. "</string>
+
+    <!--  ConversationItemSent -->
+    <string name="ConversationItemSent__test_string">Hello my deer, how are you feeling today?
+        Next time drink less and please don\'t drive drunk. Hello my deer, how are you feeling today?
+    Hello my deer, how are you feeling today?</string>
+    <string name="ConversationItemSent__test_timestamp">13:55</string>
+
+    <!-- DateUtils -->
+    <string name="DateUtils__now">Now</string>
+    <string name="DateUtils__minutes_ago">Minutes ago %d</string>
+
+    <!-- ConversationListFragment -->
+    <string name="ConversationListFragment__you_have_no_conversation_s">You have no conversations</string>
+
+
+    <!-- ConversationListItem  -->
+    <string name="ConversationListItem__test_user_login">equals</string>
+    <string name="ConversationListItem__test_user_message">Hello, are you okay? Why did you take my car yesterday?</string>
+    <string name="ConversationListItem__no_messages_with_this_user">No messages with this user</string>
+
+    <!-- UserListFragment -->
+    <string name="UserListFragment__you_have_no_users">You have no friends</string>
+
+    <!-- NewUserActivity -->
+    <string name="NewUserActivity__search">Search</string>
+    <string name="NewUserActivity__s_does_not_exist">User \'%s\' does not exist.</string>
+    <string name="NewUserActivity__user_s_has_been_added">User \'%s\' has been added.</string>
+    <string name="NewUserActivity__enter_friend_s_login_to_add_him_to_contacts">Enter friend\'s login to add him to contacts…</string>
+
+
+    <plurals name="DateUtils__hours_ago">
+        <item quantity="one">%d hour</item>
+        <item quantity="other">%d hours</item>
+    </plurals>
 
 </resources>

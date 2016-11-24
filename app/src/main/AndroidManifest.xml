@@ -31,13 +31,13 @@
 
         <activity android:name=".NewUserActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/Messenger.Light.NoActionBar" />
+            android:theme="@style/Messenger.Light" />
 
         <activity android:name=".ConversationActivity"
             android:screenOrientation="portrait"
             android:theme="@style/Messenger.Light" />
 
-        <service android:name=".service.MessageRetrievalService"
+        <service android:name=".service.MessageService"
             android:enabled="true" />
 
     </application>

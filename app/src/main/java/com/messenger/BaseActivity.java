@@ -1,6 +1,5 @@
 package com.messenger;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
@@ -8,8 +7,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 
-import com.messenger.database.model.DaoSession;
-import com.messenger.service.MessageRetrievalService;
+import com.messenger.database.MessengerDatabaseHelper;
 
 import butterknife.ButterKnife;
 
@@ -18,17 +16,18 @@ import butterknife.ButterKnife;
  */
 public abstract class BaseActivity extends AppCompatActivity {
 
-    protected abstract void onPreCreate(DaoSession daoSession);
+    protected abstract void onPreCreate(MessengerDatabaseHelper mMessengerDatabaseHelper);
 
     @Override
     protected void onStart() {
         super.onStart();
-        startService(new Intent(this, MessageRetrievalService.class));
+        onPreCreate(getMessengerDatabaseHelper());
+        // startService(new Intent(this, MessageService.class));
     }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        onPreCreate(daoSession());
+//        onPreCreate(getMessengerDatabaseHelper());
         super.onCreate(savedInstanceState);
         setContentView(setLayout());
         ButterKnife.bind(this);
@@ -39,8 +38,8 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     protected abstract int setLayout();
 
-    private DaoSession daoSession() {
-        return ((ApplicationContext)getApplication()).daoSession();
+    private MessengerDatabaseHelper getMessengerDatabaseHelper() {
+        return ((ApplicationContext)getApplication()).getMessengerDatabaseHelper();
     }
 
     protected <T extends Fragment> T initFragment(@IdRes int target, @NonNull T fragment, @Nullable Bundle extras) {

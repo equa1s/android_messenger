@@ -1,7 +1,9 @@
 package com.messenger.api.service;
 
-import com.messenger.database.model.UserEntity;
 
+import com.messenger.api.BaseRetrofitCallback;
+
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
@@ -13,11 +15,12 @@ import retrofit2.http.Path;
  */
 public interface UserService {
     @Headers("UserEntity-Agent: Messenger")
-    @GET("/users/{login}")
-    Call<UserEntity> getUser(@Header("Authorization") String authorization, @Path("login") String userLogin);
+    @GET("/check/{login}")
+    Call<ResponseBody> getUser(@Header("Authorization") String authorization, @Path("login") String userLogin);
 
-    interface Callback {
-        void onSuccess();
+    interface Callback extends BaseRetrofitCallback {
+        void onSuccess(String login);
         void onFailure(Throwable throwable);
+        void onProgress();
     }
 }

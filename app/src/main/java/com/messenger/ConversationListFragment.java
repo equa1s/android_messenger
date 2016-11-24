@@ -1,15 +1,17 @@
 package com.messenger;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.messenger.database.model.DaoSession;
-import com.messenger.database.model.MessageEntity;
+import com.messenger.animation.FadeInAnimator;
 import com.messenger.database.model.ThreadEntity;
 
 import java.util.Arrays;
@@ -19,36 +21,60 @@ import butterknife.BindView;
 
 
 /**
+ * Activity that presents list of all user's conversations
  * @author equals on 11.11.16.
  */
-public class ConversationListFragment extends BaseRecyclerFragment {
+public class ConversationListFragment extends ButterKnifeFragment
+        implements ConversationListAdapter.ConversationClickListener{
 
     private static final String TAG = ConversationListFragment.class.getSimpleName();
-    private List<ThreadEntity> threads;
-    @BindView(R.id.recycler_view) RecyclerView recyclerView;
+    public static final int _ID = 1;
+
+    private List<ThreadEntity> mThreads;
+    @BindView(R.id.recycler_view) RecyclerView mRecyclerView;
+
+    public static ConversationListFragment getInstance() {
+        return new ConversationListFragment();
+    }
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState, DaoSession daoSession) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        threads = daoSession.getThreadEntityDao().loadAll();
-        Log.d(TAG, "All threads: " + Arrays.toString(threads.toArray()));
-    }
-
-    @Nullable
-    @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.conversation_list_fragment, container, false);
+        mThreads = ((ApplicationContext)getActivity().getApplication()).getMessengerDatabaseHelper().getThreadEntityDao().loadAll();
+        Log.d(TAG, "All mThreads: " + Arrays.toString(mThreads.toArray()));
     }
 
     @Override
-    public RecyclerView getRecyclerView() {
-        return recyclerView;
+    public int setLayout() {
+        return R.layout.conversation_list_fragment;
     }
 
     @Override
-    public RecyclerView.Adapter setRecyclerViewAdapter() {
-        // TODO: set adapter
-        return new ConversationListAdapter();
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
+        // INFO : if user has no conversation's
+        if (!mThreads.isEmpty()) {
+            setRecyclerView();
+        } else {
+            mRecyclerView.setVisibility(View.GONE);
+            Log.d(TAG, "You have no conversation's");
+        }
+
+    }
+
+    private void setRecyclerView() {
+        mRecyclerView.setHasFixedSize(true);
+        mRecyclerView.setItemAnimator(new FadeInAnimator());
+        mRecyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
+        mRecyclerView.setAdapter(new ConversationListAdapter(getContext(), mThreads, this));
+    }
+
+    @Override
+    public void onConversationClick(ThreadEntity threadEntity) {
+        Intent intent = new Intent(getContext(), ConversationActivity.class);
+            intent.putExtra(ConversationActivity.RECIPIENT_LOGIN, threadEntity.getUserId());
+        startActivity(intent);
     }
 
 }

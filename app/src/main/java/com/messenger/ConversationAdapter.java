@@ -9,14 +9,18 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.messenger.database.model.MessageEntity;
+import com.messenger.ui.BindConversationItem;
 
 import java.util.List;
 
 /**
+ * Simple message adapter
  * @author equals on 15.11.16.
- * TODO: add insert new message & redraw adapter
  */
 public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapter.ViewHolder> {
+
+    private static final int OUTGOING = MessageEntity.OUTGOING;
+    private static final int INCOMING = MessageEntity.INCOMING;
 
     private List<MessageEntity> messageEntities;
     private LayoutInflater layoutInflater;
@@ -26,6 +30,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
         ViewHolder(final @NonNull View itemView) {
             super(itemView);
         }
+
         public BindConversationItem getView() {
             return (BindConversationItem) itemView;
         }
@@ -39,19 +44,19 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
     @Override
     public int getItemViewType(int position) {
         if (messageEntities.get(position).isIncoming())
-            return MessageEntity.INCOMING;
+            return INCOMING;
 
-        return MessageEntity.OUTGOING;
+        return OUTGOING;
     }
 
     private @LayoutRes int getLayoutForViewType(int viewType) {
         switch (viewType) {
-            case MessageEntity.OUTGOING:
+            case OUTGOING:
                 return R.layout.conversation_activity_item_sent;
-            case MessageEntity.INCOMING:
+            case INCOMING:
                 return R.layout.conversation_activity_item_received;
             default:
-                throw new IllegalArgumentException("unsupported item view type given to ConversationAdapter");
+                throw new IllegalArgumentException("Unsupported item view type given to ConversationAdapter");
         }
     }
 
@@ -63,7 +68,6 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        // TODO: bind message to view holder
         holder.getView().bind(messageEntities.get(position));
     }
 

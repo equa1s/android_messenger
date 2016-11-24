@@ -1,4 +1,4 @@
-package com.messenger;
+package com.messenger.ui;
 
 /**
  * @author equals on 15.11.16.

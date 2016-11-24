@@ -3,10 +3,6 @@ package com.messenger;
 import android.app.Application;
 
 import com.messenger.database.MessengerDatabaseHelper;
-import com.messenger.database.model.DaoMaster;
-import com.messenger.database.model.DaoSession;
-
-import org.greenrobot.greendao.database.DatabaseOpenHelper;
 
 
 /**
@@ -14,17 +10,15 @@ import org.greenrobot.greendao.database.DatabaseOpenHelper;
  */
 public class ApplicationContext extends Application {
 
-    private DaoSession daoSession;
+    private MessengerDatabaseHelper mMessengerDatabaseHelper;
 
     @Override
     public void onCreate() {
         super.onCreate();
-        DatabaseOpenHelper databaseOpenHelper = new MessengerDatabaseHelper(this, MessengerDatabaseHelper.DATABASE_NAME);
-        daoSession = new DaoMaster(databaseOpenHelper.getWritableDb()).newSession();
+        mMessengerDatabaseHelper = MessengerDatabaseHelper.getInstance(getApplicationContext());
     }
 
-    public DaoSession daoSession() {
-        return daoSession;
+    public MessengerDatabaseHelper getMessengerDatabaseHelper() {
+        return mMessengerDatabaseHelper;
     }
-
 }

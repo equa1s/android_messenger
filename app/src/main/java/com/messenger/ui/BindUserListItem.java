@@ -1,4 +1,4 @@
-package com.messenger;
+package com.messenger.ui;
 
 import android.support.annotation.NonNull;
 

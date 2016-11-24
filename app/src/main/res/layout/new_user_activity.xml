@@ -1,12 +1,56 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="#ffffff">
 
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="?actionBarSize" />
+        android:layout_height="?actionBarSize"
+        android:background="@color/colorPrimary">
+
+        <EditText android:id="@+id/user_search"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:drawablePadding="10dp"
+            android:drawableStart="@android:drawable/ic_menu_search"
+            android:drawableLeft="@android:drawable/ic_menu_search"
+            android:hint="@string/NewUserActivity__search"
+            android:textColorHint="@android:color/white"
+            android:background="@color/colorPrimary"
+            android:singleLine="true"
+            android:maxLines="1"
+            android:textColor="@android:color/white"
+            android:textCursorDrawable="@null"
+            android:cursorVisible="true"
+            android:layout_toStartOf="@+id/add_user_button"
+            android:layout_toLeftOf="@+id/add_user_button" />
+
+        <ImageButton
+            android:id="@+id/add_user_button"
+            android:background="@android:color/transparent"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:src="@mipmap/ic_add_white_48dp"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true" />
+
+    </RelativeLayout>
+
+    <ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="center_horizontal"
+        android:id="@+id/progress_bar"
+        android:visibility="gone" />
+
+    <TextView android:id="@+id/result_label"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="@string/NewUserActivity__enter_friend_s_login_to_add_him_to_contacts" />
 
 </LinearLayout>

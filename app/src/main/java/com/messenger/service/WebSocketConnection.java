@@ -21,6 +21,8 @@ import okhttp3.ws.WebSocketListener;
 import okio.Buffer;
 
 /**
+ * Wrapper for web socket connection
+ *
  * @author equals on 17.11.16.
  */
 public class WebSocketConnection implements WebSocketListener {
@@ -36,9 +38,10 @@ public class WebSocketConnection implements WebSocketListener {
                 .readTimeout(0, TimeUnit.MILLISECONDS)
                 .build();
 
-        // TODO: set web socket url
+        String wsUrl = BuildConfig.MESSENGER_URL.replaceAll("http", "ws");
+
         Request request = new Request.Builder()
-                .url(BuildConfig.MESSENGER_URL + "/ws")
+                .url(wsUrl)
                 .build();
 
         WebSocketCall.create(client, request).enqueue(this);
@@ -51,6 +54,12 @@ public class WebSocketConnection implements WebSocketListener {
     @Override
     public void onOpen(final WebSocket webSocket, Response response) {
         this.webSocket = webSocket;
+        try {
+            Log.d(TAG, "onOpen: "  +response.body().string());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        // if (mWebSocketMessageReceiver != null) mWebSocketMessageReceiver.onOpen(webSocket, response);
     }
 
     @Override
@@ -74,11 +83,7 @@ public class WebSocketConnection implements WebSocketListener {
 
     @Override
     public void onClose(int code, String reason) {
-        try {
-            webSocket.close(code, reason);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Log.d(TAG, "onClose: " + code + ", reason: " + reason);
     }
 
     interface WebSocketMessageReceiver {

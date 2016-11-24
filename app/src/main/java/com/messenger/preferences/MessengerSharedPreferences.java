@@ -8,10 +8,17 @@ import android.preference.PreferenceManager;
  */
 public class MessengerSharedPreferences {
 
-    private static final String TAG = MessengerSharedPreferences.class.getSimpleName();
-
     private static final String PREF_USER_LOGIN = "pref_user_login";
     private static final String PREF_USER_PASSWORD = "pref_user_password";
+    private static final String PREF_FIRST_START = "pref_first_start";
+
+    public static boolean isFirstStart(Context context) {
+        return getBooleanPreference(context, PREF_FIRST_START, false);
+    }
+
+    public static void setFirstStart(Context context, boolean value) {
+        setBooleanPreference(context, PREF_FIRST_START, value);
+    }
 
     public static boolean isUserRegistered(Context context) {
         return getUserLogin(context) != null && getUserPassword(context) != null;

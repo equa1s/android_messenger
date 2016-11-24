@@ -5,17 +5,17 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 
-import com.messenger.database.model.DaoSession;
+import com.messenger.animation.FadeInAnimator;
 import com.messenger.database.model.ThreadEntity;
 import com.messenger.database.model.ThreadEntityDao;
 import com.messenger.database.model.UserEntity;
 import com.messenger.database.model.UserEntityDao;
+import com.messenger.ui.UserListItem;
 
 import org.greenrobot.greendao.query.QueryBuilder;
 
@@ -27,16 +27,17 @@ import butterknife.OnClick;
 /**
  * @author equals on 17.11.16.
  */
-public class UserListFragment extends BaseRecyclerFragment implements UserListAdapter.UserItemClickListener {
+public class UserListFragment extends ButterKnifeFragment
+        implements UserListAdapter.UserItemClickListener {
 
     private static final String TAG = UserListFragment.class.getSimpleName();
+    public static final int _ID = 0;
     public static final int ADD_USER_REQUEST = 1;  // The request code
     static final String USER_LOGIN = "user_login";
 
     private List<UserEntity> mUsers;
-    private DaoSession mDaoSession;
 
-    @BindView(R.id.recycler_view) RecyclerView recyclerView;
+    @BindView(R.id.recycler_view) RecyclerView mRecyclerView;
     @BindView(R.id.add_user_floating_button) FloatingActionButton addUser;
 
     public static UserListFragment getInstance() {
@@ -44,26 +45,31 @@ public class UserListFragment extends BaseRecyclerFragment implements UserListAd
     }
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState, DaoSession daoSession) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.mDaoSession = daoSession;
-        mUsers = daoSession.getUserEntityDao().loadAll();
-    }
-
-    @Nullable
-    @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.user_list_fragment, container, false);
+        this.mUsers = getMessengerDatabaseHelper().getUserEntityDao().loadAll();
     }
 
     @Override
-    public RecyclerView getRecyclerView() {
-        return recyclerView;
+    public int setLayout() {
+        return R.layout.user_list_fragment;
     }
 
     @Override
-    public RecyclerView.Adapter setRecyclerViewAdapter() {
-        return new UserListAdapter(getContext(), mUsers, this);
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        if (mUsers.isEmpty()) {
+            mRecyclerView.setVisibility(View.GONE);
+        } else {
+            setRecyclerView();
+        }
+    }
+
+    private void setRecyclerView() {
+        mRecyclerView.setHasFixedSize(true);
+        mRecyclerView.setItemAnimator(new FadeInAnimator());
+        mRecyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
+        mRecyclerView.setAdapter(new UserListAdapter(getContext(), mUsers, this));
     }
 
     @Override
@@ -71,7 +77,7 @@ public class UserListFragment extends BaseRecyclerFragment implements UserListAd
 
         UserEntity userEntity = user.getUserEntity();
 
-        ThreadEntityDao threadEntityDao = mDaoSession.getThreadEntityDao();
+        ThreadEntityDao threadEntityDao = getMessengerDatabaseHelper().getThreadEntityDao();
 
         QueryBuilder<ThreadEntity> threadEntityQueryBuilder = threadEntityDao.queryBuilder();
             threadEntityQueryBuilder.where(ThreadEntityDao.Properties.UserId.eq(userEntity.getLogin()));
@@ -79,9 +85,9 @@ public class UserListFragment extends BaseRecyclerFragment implements UserListAd
         ThreadEntity threadEntity = threadEntityQueryBuilder.unique();
 
         if (threadEntity != null) {
-            // INFO: start {@link ConversationActivity.java} with clicked user
+            // INFO: start {@link ConversationActivity.java} with "clicked" user
             Intent conversationActivity = new Intent(getContext(), ConversationActivity.class);
-                conversationActivity.putExtra(ConversationActivity.USER_LOGIN, userEntity.getLogin());
+                conversationActivity.putExtra(ConversationActivity.RECIPIENT_LOGIN, userEntity.getLogin());
             startActivity(conversationActivity);
         } else {
             // TODO: create new thread and start {@link ConversationActivity.java}
@@ -93,8 +99,10 @@ public class UserListFragment extends BaseRecyclerFragment implements UserListAd
         }
     }
 
-    @OnClick(R.id.add_user_floating_button) void addUser() {
-        startActivityForResult(new Intent(getContext(), NewUserActivity.class), ADD_USER_REQUEST);
+
+    @OnClick(R.id.add_user_floating_button)
+    void newUser() {
+        startActivity(new Intent(getContext(), NewUserActivity.class));
     }
 
     @Override
@@ -103,7 +111,7 @@ public class UserListFragment extends BaseRecyclerFragment implements UserListAd
             if (resultCode == Activity.RESULT_OK) {
 
                 String login = data.getStringExtra(USER_LOGIN); // get user_login from intent
-                UserEntityDao mUserEntityDao = mDaoSession.getUserEntityDao();
+                UserEntityDao mUserEntityDao = getMessengerDatabaseHelper().getUserEntityDao();
 
                 // trying to get user from db
                 QueryBuilder<UserEntity> oldUserEntityQueryBuilder = mUserEntityDao.queryBuilder();

@@ -10,10 +10,14 @@ import java.security.SecureRandom;
 public class Util {
 
     private static final String LOGIN_PATTERN = "[a-zA-Z_0-9]{6,16}";
+    private static final String PASSWORD_PATTERN = "[a-zA-Z_0-9]{6,16}";
 
     public static boolean isLoginValid(String login) {
         return login.matches(LOGIN_PATTERN);
+    }
 
+    public static boolean isPasswordValid(String password) {
+        return password.matches(PASSWORD_PATTERN);
     }
 
     public static String getSecret(int size) {

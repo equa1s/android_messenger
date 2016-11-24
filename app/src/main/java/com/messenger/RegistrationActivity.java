@@ -15,17 +15,22 @@ import android.widget.TextView;
 
 import com.messenger.api.controller.RegistrationController;
 import com.messenger.api.service.RegistrationService;
-import com.messenger.database.model.DaoSession;
+import com.messenger.database.MessengerDatabaseHelper;
 import com.messenger.database.model.UserEntity;
 import com.messenger.notifications.NotificationManager;
 import com.messenger.preferences.MessengerSharedPreferences;
+import com.messenger.util.JsonUtils;
 import com.messenger.util.NetworkUtil;
 import com.messenger.util.Util;
+
+import java.io.IOException;
 
 import butterknife.BindView;
 import retrofit2.Response;
 
 /**
+ * Activity which presents in-app registration/login
+ *
  * @author equals on 10.11.16.
  */
 public class RegistrationActivity
@@ -41,14 +46,16 @@ public class RegistrationActivity
 
     private Animation fadeIn;
 
-    @BindView(R.id.login_edit_text) EditText loginEditText;
-    @BindView(R.id.sign_up_button) Button signUpButton;
+    @BindView(R.id.login_edit_text) EditText mLogin;
+    @BindView(R.id.password_edit_text) EditText mPassword;
+    @BindView(R.id.sign_up_button) Button mSignUp;
+    @BindView(R.id.sign_in_button) Button mSignIn;
     @BindView(R.id.registration_failed) LinearLayout errorLayout;
     @BindView(R.id.error_message) TextView errorMessage;
     @BindView(R.id.error_title) TextView errorTitle;
 
     @Override
-    protected void onPreCreate(DaoSession daoSession) {
+    protected void onPreCreate(MessengerDatabaseHelper mMessengerDatabaseHelper) {
     }
 
     @Override
@@ -58,10 +65,11 @@ public class RegistrationActivity
         registrationController = new RegistrationController(this);
 
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setTitle(getString(R.string.RegistrationActivity_title));
+            getSupportActionBar().setTitle(getString(R.string.RegistrationActivity__title));
         }
 
-        signUpButton.setOnClickListener(this);
+        mSignUp.setOnClickListener(this);
+        mSignIn.setOnClickListener(this);
 
     }
 
@@ -78,31 +86,88 @@ public class RegistrationActivity
     @Override
     public void onClick(View view) {
         if (view.getId() == R.id.sign_up_button) {
-
-            String login = String.valueOf(loginEditText.getText());
-
-            if (!Util.isLoginValid(login)) {
-                handleError(getString(R.string.RegistrationActivity_invalid_login_title),
-                        getString(R.string.RegistrationActivity_invalid_login_message));
-                return;
-            }
-
-            if (!NetworkUtil.isNetworkAvailable(this)) {
-                handleError(getString(R.string.RegistrationActivity_network_is_required),
-                        getString(R.string.RegistrationActivity_network_connection_is_absent));
-                return;
-            }
-
-            progressDialog = ProgressDialog.show(this, getString(R.string.RegistrationActivity_progress_dialog_title),
-                    getString(R.string.RegistrationActivity_progress_dialog_message));
-
-            userEntity = UserEntity.newBuilder()
-                    .login(login)
-                    .password(Util.getSecret(52))
-                    .build();
-
-            registrationController.register(userEntity);
+            handleSignUp();
+        }  else if (view.getId() == R.id.sign_in_button) {
+            handleSignIn();
         }
+    }
+
+    private void handleSignUp() {
+        String mLogin = String.valueOf(this.mLogin.getText());
+        String mPassword = String.valueOf(this.mPassword.getText());
+
+        if (!Util.isLoginValid(mLogin)) {
+            handleError(getString(R.string.RegistrationActivity__invalid_login_title),
+                    getString(R.string.RegistrationActivity__invalid_login_message));
+            return;
+        }
+
+        if (!Util.isPasswordValid(mPassword)) {
+            handleError(getString(R.string.RegistrationActivity__password_is_invalid),
+                    getString(R.string.RegistrationActivity__password_is_invalid_message));
+            return;
+        }
+
+        if (!NetworkUtil.isNetworkAvailable(this)) {
+            handleError(getString(R.string.RegistrationActivity__network_is_required),
+                    getString(R.string.RegistrationActivity__network_connection_is_absent));
+            return;
+        }
+
+        progressDialog = ProgressDialog.show(this, getString(R.string.RegistrationActivity__progress_dialog_sign_up_title),
+                getString(R.string.RegistrationActivity__progress_dialog_sign_up_message));
+
+        userEntity = UserEntity.newBuilder()
+                .login(mLogin)
+                .password(mPassword)
+                .build();
+
+        try {
+            Log.d(TAG, "User: " + JsonUtils.toJson(userEntity));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        registrationController.signUp(userEntity);
+    }
+
+    private void handleSignIn() {
+        String mLogin = String.valueOf(this.mLogin.getText());
+        String mPassword = String.valueOf(this.mPassword.getText());
+
+        if (!Util.isLoginValid(mLogin)) {
+            handleError(getString(R.string.RegistrationActivity__invalid_login_title),
+                    getString(R.string.RegistrationActivity__invalid_login_message));
+            return;
+        }
+
+        if (!Util.isPasswordValid(mPassword)) {
+            handleError(getString(R.string.RegistrationActivity__password_is_invalid),
+                    getString(R.string.RegistrationActivity__password_is_invalid_message));
+            return;
+        }
+
+        if (!NetworkUtil.isNetworkAvailable(this)) {
+            handleError(getString(R.string.RegistrationActivity__network_is_required),
+                    getString(R.string.RegistrationActivity__network_connection_is_absent));
+            return;
+        }
+
+        progressDialog = ProgressDialog.show(this, getString(R.string.RegistrationActivity__progress_dialog_sign_in_title),
+                getString(R.string.RegistrationActivity__progress_dialog_sign_in_message));
+
+        userEntity = UserEntity.newBuilder()
+                .login(mLogin)
+                .password(mPassword)
+                .build();
+
+        try {
+            Log.d(TAG, "User: " + JsonUtils.toJson(userEntity));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        registrationController.signIn(userEntity);
     }
 
     @Override
@@ -112,13 +177,17 @@ public class RegistrationActivity
 
         progressDialog.dismiss();
 
-        MessengerSharedPreferences.setUserLogin(this, userEntity.getLogin());
-        MessengerSharedPreferences.setUserPassword(this, userEntity.getPassword());
+        // if user is not registered then add him to prefs and start main activity
+        if (!MessengerSharedPreferences.isUserRegistered(this)) {
+            MessengerSharedPreferences.setUserLogin(this, userEntity.getLogin());
+            MessengerSharedPreferences.setUserPassword(this, userEntity.getPassword());
 
-        NotificationManager.showNotification(this,
-                getString(R.string.RegistrationActivity_registration_completed),
-                getString(R.string.RegistrationActivity_thank_you_for_registration));
+            NotificationManager.showNotification(this,
+                    getString(R.string.RegistrationActivity__registration_completed),
+                    getString(R.string.RegistrationActivity__thank_you_for_registration));
+        }
 
+        // user exists, do not need to re-register him, just route him to main activity
         startActivity(new Intent(this, MainActivity.class));
         finish();
     }
@@ -130,8 +199,8 @@ public class RegistrationActivity
 
         progressDialog.dismiss();
 
-        handleError(getString(R.string.RegistrationActivity_registration_failed),
-                throwable.getMessage());
+        handleError(getString(R.string.RegistrationActivity__sign_in_sign_up_failed),
+                throwable.getMessage().substring(0, 100).concat("..."));
 
     }
 
