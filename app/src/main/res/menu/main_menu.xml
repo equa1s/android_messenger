@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/menu_prefs"
+        android:title="@string/MainActivity_menu__preferences"
+        android:icon="@mipmap/ic_launcher"/>
+
+    <item android:id="@+id/menu_help"
+        android:title="@string/MainActivity_menu__help"
+        android:icon="@mipmap/ic_launcher" />
+
+</menu>

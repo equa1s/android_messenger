@@ -108,7 +108,7 @@ public class ConversationActivity extends BaseToolbarActivity implements View.On
 
     @Override
     protected void onPostCreate() {
-        MessageNotifier.setVisibleThread(getThreadId());
+        MessageNotifier.setVisibleThread(setThreadId());
 
         // init adapter
         mConversationAdapter = new ConversationAdapter(this, mMessages);
@@ -139,6 +139,8 @@ public class ConversationActivity extends BaseToolbarActivity implements View.On
             // just reload view because we see current conversation
             reload();
         } else if (messageEvent instanceof IncomingMessageEvent) {
+
+            // TODO : need to review this logic and then re-write
             // get incoming message
             WebSocketIncomingMessage webSocketIncomingMessage = (WebSocketIncomingMessage) messageEvent.getMessage();
             // if conversation is not visible
@@ -162,7 +164,7 @@ public class ConversationActivity extends BaseToolbarActivity implements View.On
         // INFO~ use notifyDataSetChanged or ...
         mConversationAdapter.notifyDataSetChanged();
 
-        // INFO~ ... create new instance of mConversationAdapter
+        // INFO~ ... re-create ConversationAdapter
         // mConversationAdapter = new ConversationAdapter(this, mMessages);
     }
 
@@ -176,7 +178,7 @@ public class ConversationActivity extends BaseToolbarActivity implements View.On
         return mMessages;
     }
 
-    private long getThreadId() {
+    private long setThreadId() {
         QueryBuilder<ThreadEntity> threadEntityQueryBuilder = mMessengerDatabaseHelper.getThreadEntityDao().queryBuilder();
         threadEntityQueryBuilder.where(ThreadEntityDao.Properties.UserId.eq(mRecipient));
 

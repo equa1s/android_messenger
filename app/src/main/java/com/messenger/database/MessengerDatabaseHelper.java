@@ -13,9 +13,9 @@ import com.messenger.database.pojo.WebSocketIncomingMessage;
 import com.messenger.database.pojo.WebSocketMessage;
 import com.messenger.database.pojo.WebSocketOutgoingMessage;
 
-import java.io.Serializable;
-
 /**
+ * Database helper
+ *
  * @author equals on 10.11.16.
  */
 public class MessengerDatabaseHelper extends DaoMaster.OpenHelper {

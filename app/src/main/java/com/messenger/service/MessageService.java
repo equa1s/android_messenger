@@ -15,8 +15,9 @@ import com.messenger.database.pojo.WebSocketOutgoingMessage;
 import com.messenger.events.IncomingMessageEvent;
 import com.messenger.events.MessageEvent;
 import com.messenger.events.OutgoingMessageEvent;
+import com.messenger.notifications.MessageNotifier;
+import com.messenger.notifications.NotificationManager;
 import com.messenger.util.JsonUtils;
-import com.messenger.util.NetworkUtil;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -73,12 +74,10 @@ public class MessageService
                 .getMessageEntityDao()
                 .insert(messageEntity);
 
-        // INFO : load thread
+        // INFO : update thread's last message, to show it in conversation fragment like a: login->last_message
         ThreadEntity staleThreadEntity = getMessengerDatabaseHelper()
                 .getThreadEntityDao()
                 .load(messageEntity.getThreadId());
-
-            // update message for stale thread entity
             staleThreadEntity.setLastMessage(messageEntity.getBody());
 
         getMessengerDatabaseHelper()
@@ -99,6 +98,7 @@ public class MessageService
     public void onMessage(WebSocketIncomingMessage webSocketMessage) {
 
         MessageEntity messageEntity = getMessengerDatabaseHelper().readIncomingMessage(webSocketMessage);
+        long threadId = messageEntity.getThreadId();
 
         getMessengerDatabaseHelper()
                 .getMessageEntityDao()
@@ -107,7 +107,7 @@ public class MessageService
         // INFO : load thread
         ThreadEntity staleThreadEntity = getMessengerDatabaseHelper()
                 .getThreadEntityDao()
-                .load(messageEntity.getThreadId());
+                .load(threadId);
 
             // update message for stale thread entity
             staleThreadEntity.setLastMessage(messageEntity.getBody());
@@ -116,7 +116,12 @@ public class MessageService
                 .getThreadEntityDao()
                 .update(staleThreadEntity);
 
-        sendEvent(new IncomingMessageEvent(webSocketMessage));
+        if (MessageNotifier.isVisibleThread(threadId)) {
+            sendEvent(new IncomingMessageEvent(webSocketMessage));
+        } else {
+            NotificationManager.showNotification(this, messageEntity.getFrom(), messageEntity.getBody());
+        }
+
     }
 
     private void sendEvent(MessageEvent messageEvent) {

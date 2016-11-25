@@ -7,10 +7,12 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recycler_view"
+            android:background="@drawable/registration_bg"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:layoutManager="LinearLayoutManager"/>
@@ -19,25 +21,28 @@
 
     <RelativeLayout
         android:layout_width="wrap_content"
-        android:layout_height="70dp"
-        android:layout_marginBottom="70dp">
+        android:layout_height="70dp">
 
         <EditText
             android:id="@+id/message_input_panel"
+            android:background="@android:color/transparent"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_toLeftOf="@+id/message_send_button"
             android:layout_toStartOf="@+id/message_send_button" />
 
+        <!-- seems better w/o bg -->
         <ImageButton
             android:id="@+id/message_send_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@mipmap/ic_send_white_48dp"
-            android:background="@drawable/send_button_bg"
+            android:background="@android:color/transparent"
             android:layout_centerVertical="true"
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true" />
+
+        <!-- android:background="@drawable/send_button_bg" -->
 
     </RelativeLayout>
 

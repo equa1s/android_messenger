@@ -50,6 +50,8 @@
     <string name="NewUserActivity__s_does_not_exist">User \'%s\' does not exist.</string>
     <string name="NewUserActivity__user_s_has_been_added">User \'%s\' has been added.</string>
     <string name="NewUserActivity__enter_friend_s_login_to_add_him_to_contacts">Enter friend\'s login to add him to contacts…</string>
+    <string name="MainActivity_menu__preferences">Preferences</string>
+    <string name="MainActivity_menu__help">Help</string>
 
 
     <plurals name="DateUtils__hours_ago">

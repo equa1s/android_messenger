@@ -21,8 +21,6 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <!--<item name="android:windowContentOverlay">@null</item>-->
-        <!--<item name="android:windowTranslucentStatus">true</item>-->
         <item name="editTextBackground">@android:color/white</item>
         <item name="editTextColor">@android:color/white</item>
         <item name="dialog_alert_icon">@mipmap/ic_warning_black_36dp</item>

@@ -1,5 +1,6 @@
 package com.messenger;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
@@ -8,17 +9,24 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MenuItem;
+import android.view.View;
+
 import com.messenger.database.MessengerDatabaseHelper;
 import com.messenger.preferences.MessengerSharedPreferences;
 
 import butterknife.BindView;
+import butterknife.OnClick;
 
 /**
+ * Activity that displays two tab fragments: conversations and friends.
+ *
  * @author equals on 11.11.16.
  */
-public class MainActivity extends BaseToolbarActivity {
+public class MainActivity extends BaseToolbarActivity implements PopupMenu.OnMenuItemClickListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
@@ -37,7 +45,7 @@ public class MainActivity extends BaseToolbarActivity {
         Log.d(TAG, "Current user: " + MessengerSharedPreferences.getUserLogin(this));
 
         if (getSupportActionBar() != null) {
-            getSupportActionBar().setCustomView(mToolbar);
+            setSupportActionBar(mToolbar);
         }
 
         PagerAdapter mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
@@ -54,6 +62,30 @@ public class MainActivity extends BaseToolbarActivity {
     @Override
     protected void onPostCreate() {
 
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_prefs:
+                // TODO : release prefs activity
+                startActivity(new Intent(this, PreferencesActivity.class));
+                return true;
+
+            case R.id.menu_help:
+                // TODO : release help activity
+                startActivity(new Intent(this, HelpActivity.class));
+                return true;
+
+        }
+        return false;
+    }
+
+    @OnClick(R.id.menu_button) void showMenu(View view) {
+        PopupMenu popup = new PopupMenu(this, view);
+            popup.setOnMenuItemClickListener(this);
+            popup.inflate(R.menu.main_menu);
+            popup.show();
     }
 
     private class ScreenSlidePagerAdapter extends FragmentStatePagerAdapter {

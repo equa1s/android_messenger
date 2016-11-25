@@ -13,7 +13,8 @@
         android:name=".ApplicationContext"
         android:theme="@style/Messenger.Light" >
 
-        <activity android:name=".MainActivity">
+        <activity android:name=".MainActivity"
+            android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -30,12 +31,16 @@
             android:theme="@style/Messenger.Light.NoActionBar" />
 
         <activity android:name=".NewUserActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/Messenger.Light" />
+            android:screenOrientation="portrait"/>
 
         <activity android:name=".ConversationActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/Messenger.Light" />
+            android:screenOrientation="portrait"/>
+
+        <activity android:name=".HelpActivity"
+            android:screenOrientation="portrait"/>
+
+        <activity android:name=".PreferencesActivity"
+            android:screenOrientation="portrait" />
 
         <service android:name=".service.MessageService"
             android:enabled="true" />
