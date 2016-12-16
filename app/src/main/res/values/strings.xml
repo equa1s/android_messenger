@@ -50,8 +50,19 @@
     <string name="NewUserActivity__s_does_not_exist">User \'%s\' does not exist.</string>
     <string name="NewUserActivity__user_s_has_been_added">User \'%s\' has been added.</string>
     <string name="NewUserActivity__enter_friend_s_login_to_add_him_to_contacts">Enter friend\'s login to add him to contacts…</string>
+
     <string name="MainActivity_menu__preferences">Preferences</string>
     <string name="MainActivity_menu__help">Help</string>
+
+    <!-- HelpActivity -->
+    <string name="HelpActivity__help_toolbar_title">Help</string>
+
+    <!-- PreferencesActivity -->
+    <string name="inline_preferences">inline_preferences</string>
+    <string name="title_checkbox_preference">Title checkbox preferences</string>
+    <string name="summary_checkbox_preference">Summary checkbox preferences</string>
+    <string name="dialog_title_list_preference">dialog_title_list_preference</string>
+    <string name="ConversationActivity__message_cant_be_empty">"Message can't be empty! "</string>
 
 
     <plurals name="DateUtils__hours_ago">

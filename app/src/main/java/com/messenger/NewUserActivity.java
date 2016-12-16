@@ -50,7 +50,7 @@ public class NewUserActivity extends BaseToolbarActivity implements UserService.
     }
 
     @OnClick(R.id.add_user_button) void addUser() {
-        mUserController.check(userSearch.getText().toString());
+        mUserController.check();
     }
 
     @Override

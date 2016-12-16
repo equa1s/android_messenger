@@ -4,16 +4,19 @@ package com.messenger.notifications;
 
 public class MessageNotifier {
 
-    private volatile static long visibleThread = -1;
+    public static final Long UNKNOWN = -1L;
+
+    private volatile static Long visibleThread = UNKNOWN;
 
     private MessageNotifier() {
     }
 
-    public static void setVisibleThread(long threadId) {
+    public static void setVisibleThread(Long threadId) {
         visibleThread = threadId;
     }
 
-    public static boolean isVisibleThread(long threadId) {
-        return visibleThread == threadId;
+    public static boolean isVisibleThread(Long threadId) {
+        return visibleThread.equals(threadId);
     }
+
 }

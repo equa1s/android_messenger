@@ -5,10 +5,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
+import android.widget.TextView;
 
 import com.messenger.animation.FadeInAnimator;
 import com.messenger.database.model.ThreadEntity;
@@ -16,6 +16,7 @@ import com.messenger.database.model.ThreadEntityDao;
 import com.messenger.database.model.UserEntity;
 import com.messenger.database.model.UserEntityDao;
 import com.messenger.ui.UserListItem;
+import com.messenger.ui.divider.HorizontalDividerItemDecoration;
 
 import org.greenrobot.greendao.query.QueryBuilder;
 
@@ -36,9 +37,11 @@ public class UserListFragment extends ButterKnifeFragment
     static final String USER_LOGIN = "user_login";
 
     private List<UserEntity> mUsers;
+    private UserListAdapter mUserListAdapter;
 
     @BindView(R.id.recycler_view) RecyclerView mRecyclerView;
     @BindView(R.id.add_user_floating_button) FloatingActionButton addUser;
+    @BindView(R.id.you_have_no_users) TextView wtFriendsLabel;
 
     public static UserListFragment getInstance() {
         return new UserListFragment();
@@ -58,22 +61,37 @@ public class UserListFragment extends ButterKnifeFragment
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        if (mUsers.isEmpty()) {
-            mRecyclerView.setVisibility(View.GONE);
-        } else {
-            setRecyclerView();
+
+        mRecyclerView.setHasFixedSize(true);
+        mRecyclerView.setItemAnimator(new FadeInAnimator());
+
+        mRecyclerView.addItemDecoration(new HorizontalDividerItemDecoration.Builder(getContext())
+                .sizeResId(R.dimen.list_divider)
+                .colorResId(R.color.list_divider)
+                .margin(110, 30)
+                .build());
+
+        mUserListAdapter = new UserListAdapter(getContext(), mUsers, this);
+        mRecyclerView.setAdapter(mUserListAdapter);
+
+        if (!mUsers.isEmpty()) {
+            wtFriendsLabel.setVisibility(View.GONE);
         }
     }
 
-    private void setRecyclerView() {
-        mRecyclerView.setHasFixedSize(true);
-        mRecyclerView.setItemAnimator(new FadeInAnimator());
-        mRecyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
-        mRecyclerView.setAdapter(new UserListAdapter(getContext(), mUsers, this));
+    @Override
+    public void onResume() {
+        super.onResume();
+        List<UserEntity> newData = getMessengerDatabaseHelper().getUserEntityDao().loadAll();
+        if (!mUserListAdapter.getData().equals(newData)) {
+            mUserListAdapter.setData(newData);
+        }
     }
 
     @Override
     public void onUserClick(UserListItem user) {
+
+        Log.d(TAG, "onUserClick: " + user.getUserEntity().getLogin());
 
         UserEntity userEntity = user.getUserEntity();
 
@@ -85,24 +103,20 @@ public class UserListFragment extends ButterKnifeFragment
         ThreadEntity threadEntity = threadEntityQueryBuilder.unique();
 
         if (threadEntity != null) {
-            // INFO: start {@link ConversationActivity.java} with "clicked" user
             Intent conversationActivity = new Intent(getContext(), ConversationActivity.class);
                 conversationActivity.putExtra(ConversationActivity.RECIPIENT_LOGIN, userEntity.getLogin());
             startActivity(conversationActivity);
         } else {
-            // TODO: create new thread and start {@link ConversationActivity.java}
             threadEntity = new ThreadEntity.Builder()
                     .userId(userEntity.getLogin())
                     .build();
 
             threadEntityDao.insert(threadEntity);
+
+            Intent conversationActivity = new Intent(getContext(), ConversationActivity.class);
+                conversationActivity.putExtra(ConversationActivity.RECIPIENT_LOGIN, userEntity.getLogin());
+            startActivity(conversationActivity);
         }
-    }
-
-
-    @OnClick(R.id.add_user_floating_button)
-    void newUser() {
-        startActivity(new Intent(getContext(), NewUserActivity.class));
     }
 
     @Override
@@ -115,7 +129,7 @@ public class UserListFragment extends ButterKnifeFragment
 
                 // trying to get user from db
                 QueryBuilder<UserEntity> oldUserEntityQueryBuilder = mUserEntityDao.queryBuilder();
-                    oldUserEntityQueryBuilder.where(UserEntityDao.Properties.Login.eq(login));
+                oldUserEntityQueryBuilder.where(UserEntityDao.Properties.Login.eq(login));
 
                 // expecting unique value
                 UserEntity oldUserEntity = oldUserEntityQueryBuilder.unique();
@@ -128,10 +142,16 @@ public class UserListFragment extends ButterKnifeFragment
                     UserEntity userEntity = new UserEntity.Builder()
                             .login(login)
                             .build();
-                        mUserEntityDao.insert(userEntity);
+                    mUserEntityDao.insert(userEntity);
                 }
 
             }
         }
     }
+
+    @OnClick(R.id.add_user_floating_button)
+    void newUser() {
+        startActivity(new Intent(getContext(), NewUserActivity.class));
+    }
+
 }

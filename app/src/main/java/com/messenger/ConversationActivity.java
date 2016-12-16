@@ -10,11 +10,12 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.support.annotation.Nullable;
-import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.Toast;
 
 import com.messenger.animation.FadeInAnimator;
 import com.messenger.database.MessengerDatabaseHelper;
@@ -22,21 +23,25 @@ import com.messenger.database.model.MessageEntity;
 import com.messenger.database.model.MessageEntityDao;
 import com.messenger.database.model.ThreadEntity;
 import com.messenger.database.model.ThreadEntityDao;
+import com.messenger.database.pojo.WebSocketGetMessages;
 import com.messenger.database.pojo.WebSocketIncomingMessage;
 import com.messenger.database.pojo.WebSocketMessage;
 import com.messenger.database.pojo.WebSocketOutgoingMessage;
 import com.messenger.events.IncomingMessageEvent;
 import com.messenger.events.MessageEvent;
 import com.messenger.events.OutgoingMessageEvent;
+import com.messenger.events.WebSocketMessageEvent;
 import com.messenger.notifications.MessageNotifier;
 import com.messenger.notifications.NotificationManager;
 import com.messenger.service.MessageService;
+import com.messenger.service.WebSocketConnection;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 import org.greenrobot.greendao.query.QueryBuilder;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -45,7 +50,7 @@ import butterknife.BindView;
 
 /**
  * Activity for displaying message thread with specified user
- * also send and receive messages.
+ * also send/receive messages.
  *
  * @author equals on 15.11.16.
  */
@@ -57,12 +62,12 @@ public class ConversationActivity extends BaseToolbarActivity implements View.On
 
     @BindView(R.id.recycler_view) RecyclerView mRecyclerView;
     @BindView(R.id.message_input_panel) EditText mInputPanel;
+    @BindView(R.id.message_send_button) ImageButton mMessageSend;
 
     private Messenger mMessageRetrievalService;
     private ConversationAdapter mConversationAdapter;
     private String mRecipient;
-    private List<MessageEntity> mMessages;
-    private MessengerDatabaseHelper mMessengerDatabaseHelper;
+    private List<MessageEntity> mMessages = new ArrayList<>();
     private long mThreadId;
     boolean mBound = false;
 
@@ -75,7 +80,7 @@ public class ConversationActivity extends BaseToolbarActivity implements View.On
 
     @Override
     protected void onPreCreate(MessengerDatabaseHelper mMessengerDatabaseHelper) {
-        this.mMessengerDatabaseHelper = mMessengerDatabaseHelper;
+
     }
 
     @Override
@@ -91,12 +96,20 @@ public class ConversationActivity extends BaseToolbarActivity implements View.On
             getSupportActionBar().setTitle(mRecipient);
         }
 
-        loadMessages();
+        mMessages = getMessages();
+        mThreadId = setThreadId();
+
+
+        MessageNotifier.setVisibleThread(mThreadId);
+
+        setRecyclerView();
+
+        mMessageSend.setOnClickListener(this);
     }
 
     private void setRecyclerView() {
         mRecyclerView.setHasFixedSize(true);
-        mRecyclerView.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+        mConversationAdapter = new ConversationAdapter(this, mMessages);
         mRecyclerView.setItemAnimator(new FadeInAnimator());
         mRecyclerView.setAdapter(mConversationAdapter);
     }
@@ -108,18 +121,14 @@ public class ConversationActivity extends BaseToolbarActivity implements View.On
 
     @Override
     protected void onPostCreate() {
-        MessageNotifier.setVisibleThread(setThreadId());
 
-        // init adapter
-        mConversationAdapter = new ConversationAdapter(this, mMessages);
-
-        // init recycler
-        setRecyclerView();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
+
+        MessageNotifier.setVisibleThread(MessageNotifier.UNKNOWN);
 
         EventBus.getDefault().unregister(this);
 
@@ -131,7 +140,7 @@ public class ConversationActivity extends BaseToolbarActivity implements View.On
 
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onMessageEvent(MessageEvent messageEvent) {
+    public void onEvent(MessageEvent messageEvent) {
 
         if (messageEvent instanceof OutgoingMessageEvent) {
             // get outgoing message
@@ -152,60 +161,55 @@ public class ConversationActivity extends BaseToolbarActivity implements View.On
                 // otherwise just reload an adapter
                 reload();
             }
+        } else if (messageEvent instanceof WebSocketMessageEvent) {
+            WebSocketGetMessages webSocketGetMessages = (WebSocketGetMessages) messageEvent.getMessage();
+            List<WebSocketIncomingMessage> webSocketIncomingMessage = webSocketGetMessages.getMessages();
+            WebSocketIncomingMessage mLastIncomingMessage = webSocketIncomingMessage.get(webSocketIncomingMessage.size() - 1);
+            reload();
         }
     }
 
     /**
-     * Load messages from database
-     * and redraw conversation adapter
+     * Load messages from database and redraw conversation adapter.
      */
     private void reload() {
-        loadMessages();
-        // INFO~ use notifyDataSetChanged or ...
-        mConversationAdapter.notifyDataSetChanged();
-
-        // INFO~ ... re-create ConversationAdapter
-        // mConversationAdapter = new ConversationAdapter(this, mMessages);
+        mMessages = getMessages();
+        mConversationAdapter.setMessages(mMessages);
+        mRecyclerView.smoothScrollToPosition(mMessages.size() - 1);
     }
 
-
-    private List<MessageEntity> loadMessages() {
-        QueryBuilder<MessageEntity> messageEntityQueryBuilder = mMessengerDatabaseHelper.getMessageEntityDao().queryBuilder();
+    private List<MessageEntity> getMessages() {
+        QueryBuilder<MessageEntity> messageEntityQueryBuilder = getMessengerDatabaseHelper().getMessageEntityDao().queryBuilder();
         messageEntityQueryBuilder.where(MessageEntityDao.Properties.From.eq(mRecipient));
-
-        mMessages = messageEntityQueryBuilder.list();
-
-        return mMessages;
+        return messageEntityQueryBuilder.list();
     }
 
     private long setThreadId() {
-        QueryBuilder<ThreadEntity> threadEntityQueryBuilder = mMessengerDatabaseHelper.getThreadEntityDao().queryBuilder();
+        QueryBuilder<ThreadEntity> threadEntityQueryBuilder = getMessengerDatabaseHelper().getThreadEntityDao().queryBuilder();
         threadEntityQueryBuilder.where(ThreadEntityDao.Properties.UserId.eq(mRecipient));
-
-        mThreadId = threadEntityQueryBuilder.unique().getThreadId();
-
-        return mThreadId;
+        return threadEntityQueryBuilder.unique().getThreadId();
     }
 
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.message_send_button:
-
                 String mMessage = mInputPanel.getText().toString();
 
-                if (!mMessage.isEmpty()) {
-                    sendMessage(mMessage);
+                if (mMessage.isEmpty()) {
+                    Toast.makeText(this, R.string.ConversationActivity__message_cant_be_empty, Toast.LENGTH_SHORT).show();
+                    return;
                 }
-                break;
 
-            default:
-                break;
+                sendMessage(mMessage);
+                mInputPanel.setText("");
+
         }
     }
 
     /**
-     * Compose & sends message to recipient
+     * Compose & sends message to recipient.
+     *
      * @param message that will be send to recipient
      */
     private void sendMessage(String message) {
@@ -213,11 +217,15 @@ public class ConversationActivity extends BaseToolbarActivity implements View.On
             Date currentDate = new Date();
             long currentDateMillis = currentDate.getTime();
 
-            WebSocketMessage webSocketMessage = new WebSocketOutgoingMessage.Builder()
-                    .body(message)
-                    .dateSent(currentDateMillis)
-                    .dateReceived(currentDateMillis)
-                    .recipient(mRecipient)
+            WebSocketMessage webSocketMessage = new WebSocketMessage.Builder()
+                    .data(new WebSocketOutgoingMessage.Builder()
+                            .body(message)
+                            .dateSent(currentDateMillis)
+                            .dateReceived(currentDateMillis)
+                            .recipient(mRecipient)
+                            .build())
+                    .method(WebSocketConnection.Method.SEND)
+                    .count(1)
                     .build();
 
             Message msg = Message.obtain();

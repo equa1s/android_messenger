@@ -1,16 +1,19 @@
 package com.messenger.database.pojo;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
 
 /**
+ * Simple incoming web socket message entity.
+ *
  * @author equals on 16.11.16.
  */
-public class WebSocketIncomingMessage implements WebSocketMessage {
+public class WebSocketIncomingMessage implements IWebSocketData {
 
-    @JsonProperty("body") private String body;
-    @JsonProperty("sender") private String sender;
-    @JsonProperty("sent_date") private long dateSent;
-    @JsonProperty("received_date") private long dateReceived;
+    @Expose @SerializedName("body") private String body;
+    @Expose @SerializedName("sender") private String sender;
+    @Expose @SerializedName("sent_date") private Long dateSent;
+    @Expose @SerializedName("received_date") private Long dateReceived;
 
     private WebSocketIncomingMessage(Builder builder) {
         body = builder.body;
@@ -27,19 +30,30 @@ public class WebSocketIncomingMessage implements WebSocketMessage {
         return sender;
     }
 
-    public long getDateSent() {
+    public Long getDateSent() {
         return dateSent;
     }
 
-    public long getDateReceived() {
+    public Long getDateReceived() {
         return dateReceived;
     }
 
+    @Override
+    public String toString() {
+        return "\nWebSocketIncomingMessage { " +
+                "\nbody='" + body + '\'' +
+                ", \n\t\tsender='" + sender + '\'' +
+                ", \n\t\tdateSent=" + dateSent +
+                ", \n\t\tdateReceived=" + dateReceived +
+                "\n}";
+    }
+
     public static final class Builder {
-        private String body;
-        private String sender;
-        private long dateSent;
-        private long dateReceived;
+
+        @Expose @SerializedName("body") private String body;
+        @Expose @SerializedName("sender") private String sender;
+        @Expose @SerializedName("sent_date") private Long dateSent;
+        @Expose @SerializedName("received_date") private Long dateReceived;
 
         public Builder() {
         }
@@ -54,12 +68,12 @@ public class WebSocketIncomingMessage implements WebSocketMessage {
             return this;
         }
 
-        public Builder dateSent(long dateSent) {
+        public Builder dateSent(Long dateSent) {
             this.dateSent = dateSent;
             return this;
         }
 
-        public Builder dateReceived(long dateReceived) {
+        public Builder dateReceived(Long dateReceived) {
             this.dateReceived = dateReceived;
             return this;
         }

@@ -34,13 +34,14 @@ public class UserController {
         this.callback = (UserService.Callback) context;
     }
 
-    public void check(String login) {
+    public void check() {
 
         callback.onProgress();
 
         Call<ResponseBody> responseBodyCall = userService.getUser(
-                Base64.encodeBytes((MessengerSharedPreferences.getUserLogin(context) + ":" + MessengerSharedPreferences.getUserPassword(context)).getBytes()),
-                login);
+                "Basic " + Base64.encodeBytes(
+                        (MessengerSharedPreferences.getUserLogin(context) + ":" +
+                                MessengerSharedPreferences.getUserPassword(context)).getBytes()));
 
         responseBodyCall.enqueue(new CheckCallback());
     }

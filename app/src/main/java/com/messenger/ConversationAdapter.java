@@ -14,7 +14,8 @@ import com.messenger.ui.BindConversationItem;
 import java.util.List;
 
 /**
- * Simple message adapter
+ * Simple message adapter.
+ *
  * @author equals on 15.11.16.
  */
 public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapter.ViewHolder> {
@@ -22,7 +23,7 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
     private static final int OUTGOING = MessageEntity.OUTGOING;
     private static final int INCOMING = MessageEntity.INCOMING;
 
-    private List<MessageEntity> messageEntities;
+    private List<MessageEntity> mMessages;
     private LayoutInflater layoutInflater;
 
     static class ViewHolder extends RecyclerView.ViewHolder {
@@ -37,13 +38,13 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
     }
 
     public ConversationAdapter(Context context, List<MessageEntity> messageEntities) {
-        this.messageEntities = messageEntities;
+        this.mMessages = messageEntities;
         this.layoutInflater = LayoutInflater.from(context);
     }
 
     @Override
     public int getItemViewType(int position) {
-        if (messageEntities.get(position).isIncoming())
+        if (mMessages.get(position).isIncoming())
             return INCOMING;
 
         return OUTGOING;
@@ -68,11 +69,21 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-        holder.getView().bind(messageEntities.get(position));
+        holder.getView().bind(mMessages.get(position));
     }
 
     @Override
     public int getItemCount() {
-        return messageEntities.size();
+        return mMessages.size();
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
+
+    void setMessages(List<MessageEntity> messages) {
+        this.mMessages = messages;
+        this.notifyDataSetChanged();
     }
 }

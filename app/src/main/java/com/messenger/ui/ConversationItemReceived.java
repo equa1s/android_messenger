@@ -1,6 +1,7 @@
 package com.messenger.ui;
 
 import android.content.Context;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.widget.ImageView;
@@ -17,6 +18,7 @@ import butterknife.ButterKnife;
 
 /**
  * View that presents received message
+ *
  * @author equals on 15.11.16.
  */
 public class ConversationItemReceived
@@ -53,7 +55,11 @@ public class ConversationItemReceived
 
         this.mMessageBody.setText(messageEntity.getBody());
         this.mTimestamp.setText(mFormattedReceivedTime);
-        this.mUserAvatar.setImageDrawable(TextUtil.getTextDrawable(messageEntity.getFrom()));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            this.mUserAvatar.setImageDrawable(TextUtil.getTextDrawable(messageEntity.getFrom(), getResources().getColor(R.color.conversation_activity_item_received, null)));
+        } else {
+            this.mUserAvatar.setImageDrawable(TextUtil.getTextDrawable(messageEntity.getFrom(), getResources().getColor(R.color.conversation_activity_item_received)));
+        }
     }
 
     @Override

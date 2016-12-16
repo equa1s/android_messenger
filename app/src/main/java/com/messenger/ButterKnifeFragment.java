@@ -13,6 +13,7 @@ import com.messenger.database.MessengerDatabaseHelper;
 import butterknife.ButterKnife;
 
 /**
+ *
  * @author equals on 24.11.16.
  */
 public abstract class ButterKnifeFragment extends Fragment {

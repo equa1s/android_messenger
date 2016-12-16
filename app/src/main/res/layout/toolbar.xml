@@ -7,7 +7,7 @@
     app:logo="@mipmap/ic_launcher"
     android:background="@color/colorPrimary"
     android:layout_width="match_parent"
-    android:layout_height="80dp"
+    android:layout_height="?actionBarSize"
     tools:context=".MainActivity">
 
     <TextView
@@ -30,7 +30,7 @@
         android:layout_height="match_parent">
 
         <ImageButton
-            android:id="@+id/menu_button"
+            android:id="@+id/toolbar_menu_button"
             android:src="@mipmap/ic_menu_white_48dp"
             android:background="@android:color/transparent"
             android:padding="15dp"

@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
+    android:background="@drawable/messenger_background"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -12,27 +13,33 @@
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recycler_view"
-            android:background="@drawable/registration_bg"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:layoutManager="LinearLayoutManager"/>
+            app:layoutManager="LinearLayoutManager"
+            app:stackFromEnd="true"/>
 
     </RelativeLayout>
 
     <RelativeLayout
         android:layout_width="wrap_content"
-        android:layout_height="70dp">
+        android:layout_marginBottom="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginStart="10dp"
+        android:layout_height="50dp">
 
         <EditText
             android:id="@+id/message_input_panel"
-            android:background="@android:color/transparent"
+            android:background="@drawable/edit_text_bg"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_toLeftOf="@+id/message_send_button"
-            android:layout_toStartOf="@+id/message_send_button" />
+            android:layout_toStartOf="@+id/message_send_button"
+            android:inputType="text" />
 
-        <!-- seems better w/o bg -->
         <ImageButton
+            android:layout_margin="7dp"
             android:id="@+id/message_send_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -41,8 +48,6 @@
             android:layout_centerVertical="true"
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true" />
-
-        <!-- android:background="@drawable/send_button_bg" -->
 
     </RelativeLayout>
 

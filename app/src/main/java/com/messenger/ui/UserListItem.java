@@ -16,6 +16,7 @@ import butterknife.ButterKnife;
 
 /**
  * View that presents user entity
+ *
  * @author equals on 15.11.16.
  */
 public class UserListItem
@@ -46,7 +47,7 @@ public class UserListItem
     public void bind(@NonNull UserEntity userEntity) {
         this.userEntity = userEntity;
 
-        avatar.setImageDrawable(TextUtil.getTextDrawable(userEntity.getLogin()));
+        avatar.setImageDrawable(TextUtil.getTextDrawable(userEntity.getLogin(), null));
         login.setText(userEntity.getLogin());
     }
 

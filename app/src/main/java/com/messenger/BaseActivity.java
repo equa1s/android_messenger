@@ -22,12 +22,10 @@ public abstract class BaseActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         onPreCreate(getMessengerDatabaseHelper());
-        // startService(new Intent(this, MessageService.class));
     }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-//        onPreCreate(getMessengerDatabaseHelper());
         super.onCreate(savedInstanceState);
         setContentView(setLayout());
         ButterKnife.bind(this);
@@ -38,23 +36,8 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     protected abstract int setLayout();
 
-    private MessengerDatabaseHelper getMessengerDatabaseHelper() {
+    public MessengerDatabaseHelper getMessengerDatabaseHelper() {
         return ((ApplicationContext)getApplication()).getMessengerDatabaseHelper();
-    }
-
-    protected <T extends Fragment> T initFragment(@IdRes int target, @NonNull T fragment, @Nullable Bundle extras) {
-
-        if (extras != null) {
-            Bundle args = new Bundle();
-            args.putAll(extras);
-            fragment.setArguments(args);
-        }
-
-        getSupportFragmentManager().beginTransaction()
-                .replace(target, fragment)
-                .commit();
-
-        return fragment;
     }
 
 }

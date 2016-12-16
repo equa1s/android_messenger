@@ -12,9 +12,10 @@ import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 /**
+ *
+ *
  * @author equals on 22.11.16.
  */
-
 public class DateUtils {
 
     private static String getLocalizedPattern(String template, Locale locale) {

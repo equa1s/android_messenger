@@ -1,6 +1,7 @@
 package com.messenger.ui;
 
 import android.content.Context;
+import android.os.Build;
 import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.widget.ImageView;
@@ -9,6 +10,7 @@ import android.widget.TextView;
 
 import com.messenger.R;
 import com.messenger.database.model.MessageEntity;
+import com.messenger.preferences.MessengerSharedPreferences;
 import com.messenger.util.DateUtils;
 import com.messenger.util.TextUtil;
 
@@ -17,6 +19,7 @@ import butterknife.ButterKnife;
 
 /**
  * View that presents sent message
+ *
  * @author equals on 15.11.16.
  */
 public class ConversationItemSent extends RelativeLayout implements BindConversationItem {
@@ -51,7 +54,12 @@ public class ConversationItemSent extends RelativeLayout implements BindConversa
 
         this.mMessageBody.setText(messageEntity.getBody());
         this.mTimestamp.setText(mFormattedReceivedTime);
-        this.mUserAvatar.setImageDrawable(TextUtil.getTextDrawable(messageEntity.getFrom()));
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            this.mUserAvatar.setImageDrawable(TextUtil.getTextDrawable(MessengerSharedPreferences.getUserLogin(getContext()), getResources().getColor(R.color.conversation_activity_item_sent, null)));
+        } else {
+            this.mUserAvatar.setImageDrawable(TextUtil.getTextDrawable(MessengerSharedPreferences.getUserLogin(getContext()), getResources().getColor(R.color.conversation_activity_item_sent)));
+        }
     }
 
     @Override

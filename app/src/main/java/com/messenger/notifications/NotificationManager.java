@@ -5,6 +5,7 @@ import android.content.Context;
 import android.support.v4.app.NotificationCompat;
 
 import com.messenger.R;
+import com.messenger.util.SystemUtils;
 
 
 /**
@@ -20,6 +21,8 @@ public class NotificationManager {
             builder.setWhen(System.currentTimeMillis());
             builder.setDefaults(Notification.DEFAULT_VIBRATE);
             builder.setAutoCancel(true);
+
+        SystemUtils.vibrate(context, 100);
 
         Notification notification = builder.build();
         ((android.app.NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE)).notify(31337, notification);

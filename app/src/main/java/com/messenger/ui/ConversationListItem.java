@@ -47,7 +47,7 @@ public class ConversationListItem
         this.mThreadEntity = mThreadEntity;
 
         // bind thread object to the view
-        mUserAvatar.setImageDrawable(TextUtil.getTextDrawable(mThreadEntity.getUserId()));
+        mUserAvatar.setImageDrawable(TextUtil.getTextDrawable(mThreadEntity.getUserId(), null));
         mUserLogin.setText(mThreadEntity.getUserId());
 
         String lastMessage = mThreadEntity.getLastMessage();

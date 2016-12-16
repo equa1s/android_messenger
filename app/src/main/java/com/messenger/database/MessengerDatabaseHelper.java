@@ -9,9 +9,13 @@ import com.messenger.database.model.MessageEntityDao;
 import com.messenger.database.model.ThreadEntity;
 import com.messenger.database.model.ThreadEntityDao;
 import com.messenger.database.model.UserEntityDao;
+import com.messenger.database.pojo.WebSocketGetMessages;
 import com.messenger.database.pojo.WebSocketIncomingMessage;
 import com.messenger.database.pojo.WebSocketMessage;
 import com.messenger.database.pojo.WebSocketOutgoingMessage;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Database helper
@@ -63,17 +67,55 @@ public class MessengerDatabaseHelper extends DaoMaster.OpenHelper {
         return new MessageReader(webSocketMessage).getOutgoingMessage();
     }
 
+    public List<MessageEntity> readIncomingMessages(WebSocketGetMessages webSocketGetMessages) {
+        return new MessageReader(webSocketGetMessages).getIncomingMessages();
+    }
+
+    /**
+     * Update thread by message id.
+     *
+     * @param messageEntity Object need for thread_id, last_message, sent_time.
+     */
+    public void updateThread(MessageEntity messageEntity) {
+        ThreadEntity staleThreadEntity = getThreadEntityDao().load(messageEntity.getThreadId());
+
+        ThreadEntity updatedThreadEntity = new ThreadEntity.Builder()
+                .threadId(staleThreadEntity.getThreadId())
+                .lastMessage(messageEntity.getBody())
+                .userId(staleThreadEntity.getUserId())
+                .lastMessageDate(messageEntity.getSentTime())
+                .build();
+
+        getThreadEntityDao().update(updatedThreadEntity);
+    }
+
+    /**
+     * Insert message entity to messages table.
+     *
+     * @param messageEntity Entity which will be inserted
+     * @return row ID of newly inserted entity
+     */
+    public long insertMessage(MessageEntity messageEntity) {
+        return getMessageEntityDao().insert(messageEntity);
+    }
+
     private class MessageReader {
 
         private WebSocketMessage webSocketMessage;
+        private WebSocketGetMessages webSocketGetMessages;
 
         MessageReader(WebSocketMessage webSocketMessage) {
             this.webSocketMessage = webSocketMessage;
         }
 
+        MessageReader(WebSocketGetMessages webSocketGetMessages) {
+            this.webSocketGetMessages = webSocketGetMessages;
+        }
+
         MessageEntity getIncomingMessageEntity() {
 
-            WebSocketIncomingMessage incomingMessage = (WebSocketIncomingMessage) webSocketMessage;
+            WebSocketIncomingMessage incomingMessage =
+                    (WebSocketIncomingMessage) webSocketMessage.getWebSocketData();
 
             ThreadEntity threadEntity = mThreadEntityDao
                     .queryBuilder()
@@ -92,7 +134,8 @@ public class MessengerDatabaseHelper extends DaoMaster.OpenHelper {
 
         MessageEntity getOutgoingMessage() {
 
-            WebSocketOutgoingMessage outgoingMessage = (WebSocketOutgoingMessage) webSocketMessage;
+            WebSocketOutgoingMessage outgoingMessage =
+                    (WebSocketOutgoingMessage) webSocketMessage.getWebSocketData();
 
             ThreadEntity threadEntity = mThreadEntityDao
                     .queryBuilder()
@@ -107,6 +150,32 @@ public class MessengerDatabaseHelper extends DaoMaster.OpenHelper {
                     .type(MessageEntity.OUTGOING)
                     .threadId(threadEntity.getThreadId())
                     .build();
+        }
+
+        List<MessageEntity> getIncomingMessages() {
+
+            List<WebSocketIncomingMessage> incomingMessages = webSocketGetMessages.getMessages();
+
+            if (incomingMessages != null && !incomingMessages.isEmpty()) {
+                ThreadEntity threadEntity = mThreadEntityDao
+                        .queryBuilder()
+                        .where(ThreadEntityDao.Properties.UserId.eq(incomingMessages.get(0).getSender()))
+                        .unique();
+
+                List<MessageEntity> messageEntities = new ArrayList<>();
+                for (WebSocketIncomingMessage message : incomingMessages) {
+                    messageEntities.add(new MessageEntity.Builder()
+                            .body(message.getBody())
+                            .from(message.getSender())
+                            .receivedTime(message.getDateReceived())
+                            .sentTime(message.getDateSent())
+                            .threadId(threadEntity.getThreadId())
+                            .type(MessageEntity.INCOMING)
+                            .build());
+                }
+                return messageEntities;
+            }
+            return null;
         }
 
     }

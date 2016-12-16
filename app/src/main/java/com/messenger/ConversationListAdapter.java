@@ -14,6 +14,8 @@ import com.messenger.ui.ConversationListItem;
 import java.util.List;
 
 /**
+ *
+ *
  * @author equals on 17.11.16.
  */
 public class ConversationListAdapter extends RecyclerView.Adapter<ConversationListAdapter.ViewHolder> {
@@ -24,7 +26,8 @@ public class ConversationListAdapter extends RecyclerView.Adapter<ConversationLi
 
     static class ViewHolder extends RecyclerView.ViewHolder {
 
-        public ViewHolder(final @NonNull View itemView, @NonNull final ConversationClickListener conversationClickListener) {
+        ViewHolder(final @NonNull View itemView,
+                   final @NonNull ConversationClickListener conversationClickListener) {
             super(itemView);
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -61,6 +64,11 @@ public class ConversationListAdapter extends RecyclerView.Adapter<ConversationLi
     @Override
     public int getItemCount() {
         return mThreads.size();
+    }
+
+    public void setThreads(List<ThreadEntity> threads) {
+        this.mThreads = threads;
+        this.notifyDataSetChanged();
     }
 
     interface ConversationClickListener {

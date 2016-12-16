@@ -1,32 +1,34 @@
 package com.messenger.database.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import com.google.gson.annotations.Expose;
 
 import org.greenrobot.greendao.annotation.Entity;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.Index;
 import org.greenrobot.greendao.annotation.Property;
-import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Transient;
+import org.greenrobot.greendao.annotation.Generated;
 
 /**
+ * Entity that presents users table in database.
+ *
  * @author equals on 10.11.16.
  */
 @Entity(nameInDb = "users", indexes = {
-        @Index(value = "login", unique = true),
-        @Index(value = "id", unique = true)
+        @Index(value = "login", unique = true)
 })
 public class UserEntity {
 
     @Id(autoincrement = true)
-    @JsonIgnore
-    private long id;
+    private Long id;
     @Property(nameInDb = "login")
+    @Expose
     private String login;
     @Transient
     private String password;
 
-    private UserEntity() {
+    public UserEntity() {
     }
 
     private UserEntity(Builder builder) {
@@ -35,21 +37,17 @@ public class UserEntity {
         setPassword(builder.password);
     }
 
-    @Generated(hash = 926557230)
-    public UserEntity(long id, String login) {
+    @Generated(hash = 1794783451)
+    public UserEntity(Long id, String login) {
         this.id = id;
         this.login = login;
     }
 
-    public static Builder newBuilder() {
-        return new Builder();
-    }
-
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -72,63 +70,39 @@ public class UserEntity {
     @Override
     public String toString() {
         return "UserEntity{" +
-                "login='" + login + '\'' +
+                "id=" + id +
+                ", login='" + login + '\'' +
+                ", password='" + password + '\'' +
                 '}';
     }
 
-    /**
-     * {@code UserEntity} builder static inner class.
-     */
     public static final class Builder {
 
-        private long id;
+        private Long id;
         private String login;
         private String password;
 
         public Builder() {
         }
 
-        /**
-         * Sets the {@code login} and returns a reference to this Builder so that the methods can be chained together.
-         *
-         * @param login the {@code login} to set
-         * @return a reference to this Builder
-         */
+        public Builder id(Long id) {
+            this.id = id;
+            return this;
+        }
+
         public Builder login(String login) {
             this.login = login;
             return this;
         }
 
-        /**
-         * Sets the {@code password} and returns a reference to this Builder so that the methods can be chained together.
-         *
-         * @param password the {@code password} to set
-         * @return a reference to this Builder
-         */
         public Builder password(String password) {
             this.password = password;
             return this;
         }
 
-
-        /**
-         * Sets the {@code id} and returns a reference to this Builder so that the methods can be chained together.
-         *
-         * @param id the {@code id} to set
-         * @return a reference to this Builder
-         */
-        public Builder id(long id) {
-            this.id = id;
-            return this;
-        }
-
-        /**
-         * Returns a {@code UserEntity} built from the parameters previously set.
-         *
-         * @return a {@code UserEntity} built with parameters of this {@code UserEntity.Builder}
-         */
         public UserEntity build() {
             return new UserEntity(this);
         }
     }
+    
 }

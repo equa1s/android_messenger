@@ -2053,13 +2053,13 @@ public class Base64
             // 1. Ensure that pending characters are written
             flushBase64();
 
-            // 2. Actually close the stream
+            // 2. Actually disconnect the stream
             // Base class both flushes and closes.
             super.close();
             
             buffer = null;
             out    = null;
-        }   // end close
+        }   // end disconnect
         
         
         

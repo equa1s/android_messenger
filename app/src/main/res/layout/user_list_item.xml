@@ -10,8 +10,7 @@
         android:layout_width="@dimen/contact_avatar_height"
         android:id="@+id/user_avatar"
         android:padding="10dp"
-        android:layout_height="match_parent"
-        android:src="@mipmap/ic_launcher"/>
+        android:layout_height="match_parent"/>
 
     <TextView
         android:id="@+id/user_login"

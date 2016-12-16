@@ -3,6 +3,7 @@ package com.messenger.events;
 import com.messenger.database.pojo.WebSocketIncomingMessage;
 
 /**
+ *
  * @author equals on 16.11.16.
  */
 public class IncomingMessageEvent implements MessageEvent {
@@ -17,5 +18,4 @@ public class IncomingMessageEvent implements MessageEvent {
     public WebSocketIncomingMessage getMessage() {
         return webSocketMessage;
     }
-
 }

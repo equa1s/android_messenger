@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <include layout="@layout/toolbar" />
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_margin="5dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <EditText
+            android:layout_height="50dp"
+            android:id="@+id/test_login_edit_text"
+            android:maxLines="1"
+            android:singleLine="true"
+            android:ems="10"
+            android:background="@drawable/edit_text_border_color"
+            android:layout_width="match_parent"
+            android:inputType="textPersonName"
+            android:textSize="20sp"
+            android:hint="@string/RegistrationActivity__login"
+            android:layout_gravity="center"
+            android:layout_marginTop="30dp"
+            android:textColorHint="@color/user_login_color"
+            android:typeface="normal"
+            android:paddingLeft="15dp"
+            android:paddingStart="15dp" />
+
+        <Button
+            android:text="Add"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/test_add_user_button" />
+
+    </LinearLayout>
+
+</LinearLayout>

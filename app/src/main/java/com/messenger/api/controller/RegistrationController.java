@@ -1,5 +1,7 @@
 package com.messenger.api.controller;
 
+import android.content.Context;
+
 import com.messenger.api.RetrofitManager;
 import com.messenger.api.exception.NonSuccessfulResponseException;
 import com.messenger.api.exception.RetrofitFailureException;
@@ -26,9 +28,9 @@ public class RegistrationController {
     private RegistrationService registrationService;
     private RegistrationService.Callback callback;
 
-    public RegistrationController(RegistrationService.Callback callback) {
+    public RegistrationController(Context context) {
         this.registrationService = RetrofitManager.getInstance().getRegistrationService();
-        this.callback = callback;
+        this.callback = (RegistrationService.Callback)context;
     }
 
     /**
@@ -37,7 +39,7 @@ public class RegistrationController {
      */
     public void signUp(UserEntity userEntity) {
         Call<ResponseBody> responseCall = registrationService.signUp(
-                Base64.encodeBytes((userEntity.getLogin() + ":" + userEntity.getPassword()).getBytes()),
+                "Basic " + Base64.encodeBytes((userEntity.getLogin() + ":" + userEntity.getPassword()).getBytes()),
                 userEntity);
         responseCall.enqueue(new SignUpCallResponse());
     }
@@ -48,7 +50,7 @@ public class RegistrationController {
      */
     public void signIn(UserEntity userEntity) {
         Call<ResponseBody> responseBodyCall = registrationService.signIn(
-                Base64.encodeBytes((userEntity.getLogin() + ":" + userEntity.getPassword()).getBytes()),
+                "Basic " + Base64.encodeBytes((userEntity.getLogin() + ":" + userEntity.getPassword()).getBytes()),
                 userEntity);
         responseBodyCall.enqueue(new SignInCallResponse());
     }

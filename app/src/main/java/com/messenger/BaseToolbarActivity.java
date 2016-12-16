@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.messenger.database.MessengerDatabaseHelper;
 import com.messenger.preferences.MessengerSharedPreferences;
+import com.messenger.service.MessageService;
 
 import butterknife.ButterKnife;
 
@@ -33,6 +34,12 @@ public abstract class BaseToolbarActivity extends BaseActivity {
 
     @Override
     protected void onPostCreate() {
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        startService(new Intent(this, MessageService.class));
     }
 
     private void routeApplicationState() {

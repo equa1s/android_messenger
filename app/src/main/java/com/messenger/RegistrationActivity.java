@@ -19,7 +19,7 @@ import com.messenger.database.MessengerDatabaseHelper;
 import com.messenger.database.model.UserEntity;
 import com.messenger.notifications.NotificationManager;
 import com.messenger.preferences.MessengerSharedPreferences;
-import com.messenger.util.JsonUtils;
+import com.messenger.util.GsonUtils;
 import com.messenger.util.NetworkUtil;
 import com.messenger.util.Util;
 
@@ -117,16 +117,10 @@ public class RegistrationActivity
         progressDialog = ProgressDialog.show(this, getString(R.string.RegistrationActivity__progress_dialog_sign_up_title),
                 getString(R.string.RegistrationActivity__progress_dialog_sign_up_message));
 
-        userEntity = UserEntity.newBuilder()
+        userEntity = new UserEntity.Builder()
                 .login(mLogin)
                 .password(mPassword)
                 .build();
-
-        try {
-            Log.d(TAG, "User: " + JsonUtils.toJson(userEntity));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
         registrationController.signUp(userEntity);
     }
@@ -156,16 +150,10 @@ public class RegistrationActivity
         progressDialog = ProgressDialog.show(this, getString(R.string.RegistrationActivity__progress_dialog_sign_in_title),
                 getString(R.string.RegistrationActivity__progress_dialog_sign_in_message));
 
-        userEntity = UserEntity.newBuilder()
+        userEntity = new UserEntity.Builder()
                 .login(mLogin)
                 .password(mPassword)
                 .build();
-
-        try {
-            Log.d(TAG, "User: " + JsonUtils.toJson(userEntity));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
         registrationController.signIn(userEntity);
     }

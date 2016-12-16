@@ -1,12 +1,13 @@
 package com.messenger.database.model;
 
 import org.greenrobot.greendao.annotation.Entity;
-import org.greenrobot.greendao.annotation.Generated;
 import org.greenrobot.greendao.annotation.Id;
 import org.greenrobot.greendao.annotation.Property;
+import org.greenrobot.greendao.annotation.Generated;
 
 /**
- * {@link MessageEntity} represents message entity
+ * Entity that presents messages table in database.
+ *
  * @author equals on 15.11.16.
  */
 
@@ -18,16 +19,12 @@ public class MessageEntity {
 
     @Id(autoincrement = true)
     @Property(nameInDb = "message_id")
-    private long id;
+    private Long id;
 
     @Property(nameInDb = "thread_id")
-    private long threadId;
+    private Long threadId;
 
     private String body;
-
-    /**
-     * @param from keeps a sender of message
-     */
     private String from;
 
     @Property(nameInDb = "received_time")
@@ -38,12 +35,7 @@ public class MessageEntity {
 
     private int type;
 
-    public boolean isOutgoing() {
-        return type == OUTGOING;
-    }
-
-    public boolean isIncoming() {
-        return type == INCOMING;
+    public MessageEntity() {
     }
 
     private MessageEntity(Builder builder) {
@@ -56,8 +48,9 @@ public class MessageEntity {
         setType(builder.type);
     }
 
-    @Generated(hash = 655175726)
-    public MessageEntity(long id, long threadId, String body, String from, long receivedTime, long sentTime, int type) {
+    @Generated(hash = 1532295514)
+    public MessageEntity(Long id, Long threadId, String body, String from,
+            long receivedTime, long sentTime, int type) {
         this.id = id;
         this.threadId = threadId;
         this.body = body;
@@ -67,27 +60,27 @@ public class MessageEntity {
         this.type = type;
     }
 
-    @Generated(hash = 1797882234)
-    public MessageEntity() {
+    public boolean isOutgoing() {
+        return type == OUTGOING;
     }
 
-    public static Builder newBuilder() {
-        return new Builder();
+    public boolean isIncoming() {
+        return type == INCOMING;
     }
 
-    public long getId() {
+    public Long getId() {
         return this.id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public long getThreadId() {
+    public Long getThreadId() {
         return this.threadId;
     }
 
-    public void setThreadId(long threadId) {
+    public void setThreadId(Long threadId) {
         this.threadId = threadId;
     }
 
@@ -131,10 +124,24 @@ public class MessageEntity {
         this.type = type;
     }
 
+    @Override
+    public String toString() {
+        return "MessageEntity{" +
+                "id=" + id +
+                ", threadId=" + threadId +
+                ", body='" + body + '\'' +
+                ", from='" + from + '\'' +
+                ", receivedTime=" + receivedTime +
+                ", sentTime=" + sentTime +
+                ", type=" + type +
+                '}';
+    }
+
 
     public static final class Builder {
-        private long id;
-        private long threadId;
+
+        private Long id;
+        private Long threadId;
         private String body;
         private String from;
         private long receivedTime;
@@ -144,12 +151,12 @@ public class MessageEntity {
         public Builder() {
         }
 
-        public Builder id(long id) {
+        public Builder id(Long id) {
             this.id = id;
             return this;
         }
 
-        public Builder threadId(long threadId) {
+        public Builder threadId(Long threadId) {
             this.threadId = threadId;
             return this;
         }

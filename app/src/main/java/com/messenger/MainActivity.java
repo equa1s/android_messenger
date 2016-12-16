@@ -15,7 +15,10 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.messenger.animation.ZoomOutPageTransformer;
 import com.messenger.database.MessengerDatabaseHelper;
+import com.messenger.database.model.UserEntity;
+import com.messenger.database.model.UserEntityDao;
 import com.messenger.preferences.MessengerSharedPreferences;
 
 import butterknife.BindView;
@@ -34,24 +37,30 @@ public class MainActivity extends BaseToolbarActivity implements PopupMenu.OnMen
     @BindView(R.id.tabs) TabLayout mTabs;
     @BindView(R.id.view_pager) ViewPager mPager;
 
+    protected UserListFragment mUsersFragment = null;
+    protected ConversationListFragment mConversationListFragment = null;
+
     @Override
     protected void onPreCreate(MessengerDatabaseHelper mMessengerDatabaseHelper) {
-
+        mUsersFragment = UserListFragment.getInstance();
+        mConversationListFragment = ConversationListFragment.getInstance();
     }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d(TAG, "Current user: " + MessengerSharedPreferences.getUserLogin(this));
+        Log.d(TAG, "Current user: " + MessengerSharedPreferences.getUserLogin(this) + ", " + MessengerSharedPreferences.getUserPassword(this));
 
         if (getSupportActionBar() != null) {
             setSupportActionBar(mToolbar);
         }
 
         PagerAdapter mPagerAdapter = new ScreenSlidePagerAdapter(getSupportFragmentManager());
-        mPager.setAdapter(mPagerAdapter);
-        mTabs.setupWithViewPager(mPager);
-        mPager.setCurrentItem(1);
+            mPager.setPageTransformer(true, new ZoomOutPageTransformer());
+            mPager.setAdapter(mPagerAdapter);
+            mTabs.setupWithViewPager(mPager);
+            mPager.setCurrentItem(1);
+
     }
 
     @Override
@@ -81,7 +90,7 @@ public class MainActivity extends BaseToolbarActivity implements PopupMenu.OnMen
         return false;
     }
 
-    @OnClick(R.id.menu_button) void showMenu(View view) {
+    @OnClick(R.id.toolbar_menu_button) void showMenu(View view) {
         PopupMenu popup = new PopupMenu(this, view);
             popup.setOnMenuItemClickListener(this);
             popup.inflate(R.menu.main_menu);
@@ -98,16 +107,11 @@ public class MainActivity extends BaseToolbarActivity implements PopupMenu.OnMen
 
         @Override
         public Fragment getItem(int position) {
-            Fragment fragment = null;
             switch (position) {
-                case UserListFragment._ID:
-                    fragment = UserListFragment.getInstance();
-                    break;
-                case ConversationListFragment._ID:
-                    fragment = ConversationListFragment.getInstance();
-                    break;
+                case UserListFragment._ID: return mUsersFragment;
+                case ConversationListFragment._ID: return mConversationListFragment;
             }
-            return fragment;
+            return null;
         }
 
         @Override

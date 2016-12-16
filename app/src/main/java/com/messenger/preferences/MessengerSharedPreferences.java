@@ -4,6 +4,8 @@ import android.content.Context;
 import android.preference.PreferenceManager;
 
 /**
+ * Class which represents application preferences
+ *
  * @author equals on 10.11.16.
  */
 public class MessengerSharedPreferences {
@@ -11,6 +13,7 @@ public class MessengerSharedPreferences {
     private static final String PREF_USER_LOGIN = "pref_user_login";
     private static final String PREF_USER_PASSWORD = "pref_user_password";
     private static final String PREF_FIRST_START = "pref_first_start";
+    private static final String PREF_COOKIES = "pref_user_cookies";
 
     public static boolean isFirstStart(Context context) {
         return getBooleanPreference(context, PREF_FIRST_START, false);
@@ -30,6 +33,14 @@ public class MessengerSharedPreferences {
 
     public static String getUserPassword(Context context) {
         return getStringPreference(context, PREF_USER_PASSWORD, null);
+    }
+
+    public static void setCookies(Context context, String value) {
+        setStringPreference(context, PREF_COOKIES, value);
+    }
+
+    public static String getCookies(Context context) {
+        return getStringPreference(context, PREF_COOKIES, null);
     }
 
     public static void setUserLogin(Context context, String value) {

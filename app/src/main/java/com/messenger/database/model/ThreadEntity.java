@@ -7,7 +7,8 @@ import org.greenrobot.greendao.annotation.Index;
 import org.greenrobot.greendao.annotation.Property;
 
 /**
- * Entity that presents thread in database
+ * Entity that presents threads table in database.
+ *
  * @author equals on 16.11.16.
  */
 @Entity(nameInDb = "threads", indexes = {
@@ -17,7 +18,7 @@ public class ThreadEntity {
 
     @Id(autoincrement = true)
     @Property(nameInDb = "thread_id")
-    private long threadId;
+    private Long threadId;
 
     @Property(nameInDb = "user_login")
     private String userId;
@@ -25,28 +26,33 @@ public class ThreadEntity {
     @Property(nameInDb = "last_message")
     private String lastMessage;
 
-    private ThreadEntity(Builder builder) {
-        threadId = builder.threadId;
-        userId = builder.userId;
+    @Property(nameInDb = "date")
+    private Long lastMessageDate;
 
-    }
-
-    @Generated(hash = 1051853799)
-    public ThreadEntity(long threadId, String userId, String lastMessage) {
-        this.threadId = threadId;
-        this.userId = userId;
-        this.lastMessage = lastMessage;
-    }
-
-    @Generated(hash = 968277741)
     public ThreadEntity() {
     }
 
-    public long getThreadId() {
+    private ThreadEntity(Builder builder) {
+        setThreadId(builder.threadId);
+        setUserId(builder.userId);
+        setLastMessage(builder.lastMessage);
+        setLastMessageDate(builder.lastMessageDate);
+    }
+
+    @Generated(hash = 261413255)
+    public ThreadEntity(Long threadId, String userId, String lastMessage,
+            Long lastMessageDate) {
+        this.threadId = threadId;
+        this.userId = userId;
+        this.lastMessage = lastMessage;
+        this.lastMessageDate = lastMessageDate;
+    }
+
+    public Long getThreadId() {
         return this.threadId;
     }
 
-    public void setThreadId(long threadId) {
+    public void setThreadId(Long threadId) {
         this.threadId = threadId;
     }
 
@@ -66,15 +72,35 @@ public class ThreadEntity {
         this.lastMessage = lastMessage;
     }
 
+    public Long getLastMessageDate() {
+        return lastMessageDate;
+    }
+
+    public void setLastMessageDate(Long lastMessageDate) {
+        this.lastMessageDate = lastMessageDate;
+    }
+
+    @Override
+    public String toString() {
+        return "ThreadEntity{" +
+                "threadId=" + threadId +
+                ", userId='" + userId + '\'' +
+                ", lastMessage='" + lastMessage + '\'' +
+                ", lastMessageDate='" + lastMessageDate + '\'' +
+                '}';
+    }
+
     public static final class Builder {
-        private long threadId;
+
+        private Long threadId;
         private String userId;
         private String lastMessage;
+        private Long lastMessageDate;
 
         public Builder() {
         }
 
-        public Builder threadId(long threadId) {
+        public Builder threadId(Long threadId) {
             this.threadId = threadId;
             return this;
         }
@@ -89,8 +115,14 @@ public class ThreadEntity {
             return this;
         }
 
+        public Builder lastMessageDate(Long lastMessageDate) {
+            this.lastMessageDate = lastMessageDate;
+            return this;
+        }
+
         public ThreadEntity build() {
             return new ThreadEntity(this);
         }
     }
+
 }

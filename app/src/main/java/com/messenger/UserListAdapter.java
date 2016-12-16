@@ -18,7 +18,7 @@ import java.util.List;
 /**
  * @author equals on 14.11.16.
  */
-class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.ViewHolder> {
+public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.ViewHolder> {
 
     private List<UserEntity> data = null;
     private LayoutInflater inflater;
@@ -65,6 +65,15 @@ class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.ViewHolder> {
     @Override
     public int getItemCount() {
         return data.size();
+    }
+
+    public List<UserEntity> getData() {
+        return data;
+    }
+
+    protected void setData(List<UserEntity> data) {
+        this.data = data;
+        notifyDataSetChanged();
     }
 
     public void insertUser(UserEntity userEntity) {
