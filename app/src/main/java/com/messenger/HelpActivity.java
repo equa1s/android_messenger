@@ -4,14 +4,11 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import com.messenger.database.MessengerDatabaseHelper;
 import com.messenger.database.model.UserEntity;
-import com.messenger.notifications.MessageNotifier;
 
 import butterknife.BindView;
 import butterknife.OnClick;

@@ -26,17 +26,11 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.ViewHo
 
     static class ViewHolder extends RecyclerView.ViewHolder {
 
-        ViewHolder(final @NonNull View itemView, final @NonNull UserItemClickListener listener) {
+        ViewHolder(final @NonNull View itemView) {
             super(itemView);
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    listener.onUserClick((UserListItem) getItem());
-                }
-            });
         }
 
-        BindableUserListItem getItem() {
+        public BindableUserListItem getItem() {
             return (BindableUserListItem) itemView;
         }
     }
@@ -51,14 +45,25 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.ViewHo
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        UserListItem userListItem =  (UserListItem) inflater.inflate(R.layout.user_list_item, parent, false);
-        return new ViewHolder(userListItem, listener);
+        final UserListItem userListItem =  (UserListItem) inflater.inflate(R.layout.user_list_item, parent, false);
+            userListItem.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    listener.onUserClick(userListItem.getUserEntity());
+                }
+            });
+        return new ViewHolder(userListItem);
     }
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         UserEntity userEntity = data.get(position);
             holder.getItem().bind(userEntity);
+    }
+
+    @Override
+    public void onViewRecycled(ViewHolder holder) {
+        holder.getItem().unbind();
     }
 
     @Override
@@ -76,7 +81,7 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.ViewHo
     }
 
     interface UserItemClickListener {
-        void onUserClick(UserListItem user);
+        void onUserClick(UserEntity user);
     }
 
 }

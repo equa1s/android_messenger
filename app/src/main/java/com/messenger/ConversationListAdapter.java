@@ -26,15 +26,8 @@ public class ConversationListAdapter extends RecyclerView.Adapter<ConversationLi
 
     static class ViewHolder extends RecyclerView.ViewHolder {
 
-        ViewHolder(final @NonNull View itemView,
-                   final @NonNull ConversationClickListener conversationClickListener) {
+        ViewHolder(final @NonNull View itemView) {
             super(itemView);
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    conversationClickListener.onConversationClick(((ConversationListItem)getView()).getThreadEntity());
-                }
-            });
         }
         public BindableConversationListItem getView() {
             return (BindableConversationListItem) itemView;
@@ -52,13 +45,24 @@ public class ConversationListAdapter extends RecyclerView.Adapter<ConversationLi
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = mLayoutInflater.inflate(R.layout.conversation_list_item, parent, false);
-        return new ViewHolder(view, mClickListener);
+        final ConversationListItem view = (ConversationListItem) mLayoutInflater.inflate(R.layout.conversation_list_item, parent, false);
+            view.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    mClickListener.onConversationClick(((ConversationListItem)view).getThreadEntity());
+                }
+            });
+        return new ViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         holder.getView().bind(mThreads.get(position));
+    }
+
+    @Override
+    public void onViewRecycled(ViewHolder holder) {
+        holder.getView().unbind();
     }
 
     @Override

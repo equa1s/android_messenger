@@ -1,7 +1,7 @@
 package com.messenger.events;
 
 import com.messenger.database.pojo.IWebSocketData;
-import com.messenger.database.pojo.WebSocketGetMessages;
+import com.messenger.database.pojo.WebSocketMessages;
 
 /**
  * Simple {@link org.greenrobot.eventbus.EventBus} message event to
@@ -11,15 +11,15 @@ import com.messenger.database.pojo.WebSocketGetMessages;
  */
 public class WebSocketMessageEvent implements MessageEvent {
 
-    private WebSocketGetMessages webSocketGetMessages;
+    private WebSocketMessages webSocketMessages;
 
-    public WebSocketMessageEvent(WebSocketGetMessages webSocketGetMessages) {
-        this.webSocketGetMessages = webSocketGetMessages;
+    public WebSocketMessageEvent(WebSocketMessages webSocketMessages) {
+        this.webSocketMessages = webSocketMessages;
     }
 
     @Override
     public IWebSocketData getMessage() {
-        return webSocketGetMessages;
+        return webSocketMessages;
     }
 
 }

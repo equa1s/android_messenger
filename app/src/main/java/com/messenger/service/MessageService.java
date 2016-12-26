@@ -14,7 +14,7 @@ import com.messenger.database.MessengerDatabaseHelper;
 import com.messenger.database.model.MessageEntity;
 import com.messenger.database.model.ThreadEntity;
 import com.messenger.database.pojo.IWebSocketData;
-import com.messenger.database.pojo.WebSocketGetMessages;
+import com.messenger.database.pojo.WebSocketMessages;
 import com.messenger.database.pojo.WebSocketIncomingMessage;
 import com.messenger.database.pojo.WebSocketMessage;
 import com.messenger.database.pojo.WebSocketOutgoingMessage;
@@ -25,7 +25,6 @@ import com.messenger.events.WebSocketMessageEvent;
 import com.messenger.notifications.MessageNotifier;
 import com.messenger.notifications.NotificationManager;
 import com.messenger.util.GsonUtils;
-import com.messenger.util.NetworkUtil;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -107,8 +106,8 @@ public class MessageService
      */
     @Override
     public void onMessage(IWebSocketData iWebSocketData) {
-        if (iWebSocketData instanceof WebSocketGetMessages) {
-            handleIncomingMessages((WebSocketGetMessages) iWebSocketData);
+        if (iWebSocketData instanceof WebSocketMessages) {
+            handleIncomingMessages((WebSocketMessages) iWebSocketData);
         } else if (iWebSocketData instanceof WebSocketIncomingMessage) {
             handleIncomingMessage((WebSocketIncomingMessage) iWebSocketData);
         }
@@ -135,7 +134,7 @@ public class MessageService
     /**
      * Returns instance of database helper {@link MessengerDatabaseHelper}.
      *
-     * @return Instance of message database.
+     * @return Instance of messenger database.
      */
     protected MessengerDatabaseHelper getMessengerDatabaseHelper() {
         return ((ApplicationContext)getApplication()).getMessengerDatabaseHelper();
@@ -146,37 +145,26 @@ public class MessageService
      *
      * @param webSocketGetMessage Incoming messages from web socket
      */
-    private void handleIncomingMessages(WebSocketGetMessages webSocketGetMessage) {
+    private void handleIncomingMessages(WebSocketMessages webSocketGetMessage) {
 
         List<MessageEntity> messages = getMessengerDatabaseHelper()
                 .readIncomingMessages(webSocketGetMessage);
 
         if (messages != null) {
-            for (MessageEntity messageEntity : messages) {
 
-                getMessengerDatabaseHelper()
-                        .getMessageEntityDao()
-                        .insert(messageEntity);
+            for (MessageEntity message : messages) {
 
-                long threadId = messageEntity.getThreadId();
+                if (message != null) {
 
-                ThreadEntity staleThreadEntity = getMessengerDatabaseHelper()
-                        .getThreadEntityDao()
-                        .load(threadId);
+                    handleMessage(message);
 
-                // update message for stale thread entity
-                staleThreadEntity.setLastMessage(messageEntity.getBody());
-
-                getMessengerDatabaseHelper()
-                        .getThreadEntityDao()
-                        .update(staleThreadEntity);
-
-                if (MessageNotifier.isVisibleThread(threadId)) {
-                    Log.d(TAG, "Thread is visible, so just send an event to reload a list view. ");
-                    sendEvent(new WebSocketMessageEvent(webSocketGetMessage));
-                } else {
-                    Log.d(TAG, "Thread is invisible, show a notification. ");
-                    NotificationManager.showNotification(this, messageEntity.getFrom(), messageEntity.getBody());
+                    if (MessageNotifier.isVisibleThread(message.getThreadId())) {
+                        Log.d(TAG, "Thread is visible, so just send an event to reload a list view. ");
+                        sendEvent(new WebSocketMessageEvent(webSocketGetMessage));
+                    } else {
+                        Log.d(TAG, "Thread is invisible, show a notification. ");
+                        NotificationManager.showNotification(this, message.getFrom(), message.getBody());
+                    }
                 }
             }
         }
@@ -191,27 +179,13 @@ public class MessageService
     private void handleIncomingMessage(WebSocketIncomingMessage webSocketIncomingMessage) {
 
         MessageEntity message = getMessengerDatabaseHelper()
-                .readIncomingMessage(webSocketIncomingMessage, null);
+                .readIncomingMessage(webSocketIncomingMessage);
 
         if (message != null) {
-            getMessengerDatabaseHelper()
-                    .getMessageEntityDao()
-                    .insert(message);
 
-            long threadId = message.getThreadId();
+            handleMessage(message);
 
-            ThreadEntity staleThreadEntity = getMessengerDatabaseHelper()
-                    .getThreadEntityDao()
-                    .load(threadId);
-
-            // update message for stale thread entity
-            staleThreadEntity.setLastMessage(message.getBody());
-
-            getMessengerDatabaseHelper()
-                    .getThreadEntityDao()
-                    .update(staleThreadEntity);
-
-            if (MessageNotifier.isVisibleThread(threadId)) {
+            if (MessageNotifier.isVisibleThread(message.getThreadId())) {
                 Log.d(TAG, "Thread is visible, so just send an event to reload a list view. ");
                 sendEvent(new IncomingMessageEvent(webSocketIncomingMessage));
             } else {
@@ -220,6 +194,31 @@ public class MessageService
             }
         }
 
+    }
+
+    /**
+     * Handle incoming message.
+     *
+     * @param message Incoming message
+     */
+    public void handleMessage(MessageEntity message) {
+
+        getMessengerDatabaseHelper()
+                .getMessageEntityDao()
+                .insert(message);
+
+        long threadId = message.getThreadId();
+
+        ThreadEntity staleThreadEntity = getMessengerDatabaseHelper()
+                .getThreadEntityDao()
+                .load(threadId);
+
+        // update message for stale thread entity
+        staleThreadEntity.setLastMessage(message.getBody());
+
+        getMessengerDatabaseHelper()
+                .getThreadEntityDao()
+                .update(staleThreadEntity);
     }
 
     /**

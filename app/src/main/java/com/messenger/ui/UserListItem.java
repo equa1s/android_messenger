@@ -19,8 +19,7 @@ import butterknife.ButterKnife;
  *
  * @author equals on 15.11.16.
  */
-public class UserListItem
-        extends LinearLayout
+public class UserListItem extends LinearLayout
          implements BindableUserListItem, Unbindable {
 
     private UserEntity userEntity;

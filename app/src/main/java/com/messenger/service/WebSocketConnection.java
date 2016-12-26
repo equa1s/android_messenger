@@ -7,7 +7,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.messenger.BuildConfig;
 import com.messenger.database.pojo.IWebSocketData;
-import com.messenger.database.pojo.WebSocketGetMessages;
+import com.messenger.database.pojo.WebSocketMessages;
 import com.messenger.database.pojo.WebSocketIncomingMessage;
 import com.messenger.database.pojo.WebSocketMessage;
 import com.messenger.preferences.MessengerSharedPreferences;
@@ -113,9 +113,9 @@ public class WebSocketConnection implements WebSocketListener {
             if (mWebSocketMessageReceiver != null) mWebSocketMessageReceiver.onMessage(webSocketMessage);
             sendResponse(webSocketMessage);
         } else {
-            WebSocketGetMessages webSocketGetMessages = GsonUtils.fromJson(response, WebSocketGetMessages.class);
-            if (mWebSocketMessageReceiver != null) mWebSocketMessageReceiver.onMessage(webSocketGetMessages);
-            sendResponse(webSocketGetMessages);
+            WebSocketMessages webSocketMessages = GsonUtils.fromJson(response, WebSocketMessages.class);
+            if (mWebSocketMessageReceiver != null) mWebSocketMessageReceiver.onMessage(webSocketMessages);
+            sendResponse(webSocketMessages);
         }
 
     }
@@ -149,8 +149,8 @@ public class WebSocketConnection implements WebSocketListener {
      * @throws IOException
      */
     private void sendResponse(IWebSocketData iWebSocketData) throws IOException {
-        if (iWebSocketData instanceof WebSocketGetMessages) {
-            List<WebSocketIncomingMessage> messages = ((WebSocketGetMessages)iWebSocketData).getMessages();
+        if (iWebSocketData instanceof WebSocketMessages) {
+            List<WebSocketIncomingMessage> messages = ((WebSocketMessages)iWebSocketData).getMessages();
             if (messages != null && !messages.isEmpty()) {
 
                 Map<String, Object> response = new HashMap<>();

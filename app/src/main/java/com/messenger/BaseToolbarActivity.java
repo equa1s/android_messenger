@@ -11,7 +11,7 @@ import com.messenger.service.MessageService;
 import butterknife.ButterKnife;
 
 /**
- * Base toolbar activity which helps to handle current application state.
+ * Base toolbar activity which helps to handleMessage current application state.
  *
  * @author equals on 10.11.16.
  */

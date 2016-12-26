@@ -7,6 +7,6 @@ import com.messenger.database.model.MessageEntity;
 /**
  * @author equals on 15.11.16.
  */
-public interface BindableConversationItem {
+public interface BindableConversationItem extends Unbindable {
     void bind(@NonNull MessageEntity messageEntity);
 }

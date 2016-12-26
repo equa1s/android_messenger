@@ -12,12 +12,12 @@ import java.util.List;
  *
  * @author equals on 14.12.16.
  */
-public class WebSocketGetMessages implements IWebSocketData {
+public class WebSocketMessages implements IWebSocketData {
 
     @Expose @SerializedName("count") private Integer count;
     @Expose @SerializedName("messages") private List<WebSocketIncomingMessage> messages;
 
-    private WebSocketGetMessages(Builder builder) {
+    private WebSocketMessages(Builder builder) {
         count = builder.count;
         messages = builder.messages;
     }
@@ -32,7 +32,7 @@ public class WebSocketGetMessages implements IWebSocketData {
 
     @Override
     public String toString() {
-        return "\nWebSocketGetMessages { " +
+        return "\nWebSocketMessages { " +
                 "\n\t\tcount=" + count +
                 ", \n\t\tmessages=" + messages +
                 "\n}";
@@ -56,8 +56,8 @@ public class WebSocketGetMessages implements IWebSocketData {
             return this;
         }
 
-        public WebSocketGetMessages build() {
-            return new WebSocketGetMessages(this);
+        public WebSocketMessages build() {
+            return new WebSocketMessages(this);
         }
     }
 

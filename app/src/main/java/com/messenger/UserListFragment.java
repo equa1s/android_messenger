@@ -91,11 +91,9 @@ public class UserListFragment extends ButterKnifeFragment
     }
 
     @Override
-    public void onUserClick(UserListItem user) {
+    public void onUserClick(UserEntity userEntity) {
 
-        Log.d(TAG, "onUserClick: " + user.getUserEntity().getLogin());
-
-        UserEntity userEntity = user.getUserEntity();
+        Log.d(TAG, "onUserClick: " + userEntity.getLogin());
 
         ThreadEntityDao threadEntityDao = getMessengerDatabaseHelper().getThreadEntityDao();
 
@@ -105,9 +103,8 @@ public class UserListFragment extends ButterKnifeFragment
         ThreadEntity threadEntity = threadEntityQueryBuilder.unique();
 
         if (threadEntity != null) {
-            Intent conversationActivity = new Intent(getContext(), ConversationActivity.class);
-                conversationActivity.putExtra(ConversationActivity.RECIPIENT_LOGIN, userEntity.getLogin());
-            startActivity(conversationActivity);
+            startActivity(new Intent(getContext(), ConversationActivity.class)
+                    .putExtra(ConversationActivity.RECIPIENT_LOGIN, userEntity.getLogin()));
         } else {
             threadEntity = new ThreadEntity.Builder()
                     .userId(userEntity.getLogin())
@@ -115,9 +112,8 @@ public class UserListFragment extends ButterKnifeFragment
 
             threadEntityDao.insert(threadEntity);
 
-            Intent conversationActivity = new Intent(getContext(), ConversationActivity.class);
-                conversationActivity.putExtra(ConversationActivity.RECIPIENT_LOGIN, userEntity.getLogin());
-            startActivity(conversationActivity);
+            startActivity(new Intent(getContext(), ConversationActivity.class)
+                    .putExtra(ConversationActivity.RECIPIENT_LOGIN, userEntity.getLogin()));
         }
     }
 

@@ -9,7 +9,7 @@ import com.messenger.database.model.MessageEntityDao;
 import com.messenger.database.model.ThreadEntity;
 import com.messenger.database.model.ThreadEntityDao;
 import com.messenger.database.model.UserEntityDao;
-import com.messenger.database.pojo.WebSocketGetMessages;
+import com.messenger.database.pojo.WebSocketMessages;
 import com.messenger.database.pojo.WebSocketIncomingMessage;
 import com.messenger.database.pojo.WebSocketMessage;
 import com.messenger.database.pojo.WebSocketOutgoingMessage;
@@ -59,20 +59,16 @@ public class MessengerDatabaseHelper extends DaoMaster.OpenHelper {
         return mUserEntityDao;
     }
 
-    public MessageEntity readIncomingMessage(WebSocketIncomingMessage webSocketMessage) {
-        return new MessageReader(webSocketMessage).getIncomingMessageEntity();
-    }
-
-    public MessageEntity readIncomingMessage(WebSocketIncomingMessage webSocketIncomingMessage, Object object) {
-        return new MessageReader(webSocketIncomingMessage).getIncomingMessageEntity(object);
+    public MessageEntity readIncomingMessage(WebSocketIncomingMessage webSocketIncomingMessage) {
+        return new MessageReader(webSocketIncomingMessage).getIncomingMessage();
     }
 
     public MessageEntity readOutgoingMessage(WebSocketMessage webSocketMessage) {
         return new MessageReader(webSocketMessage).getOutgoingMessage();
     }
 
-    public List<MessageEntity> readIncomingMessages(WebSocketGetMessages webSocketGetMessages) {
-        return new MessageReader(webSocketGetMessages).getIncomingMessages();
+    public List<MessageEntity> readIncomingMessages(WebSocketMessages webSocketMessages) {
+        return new MessageReader(webSocketMessages).getIncomingMessages();
     }
 
     /**
@@ -106,7 +102,7 @@ public class MessengerDatabaseHelper extends DaoMaster.OpenHelper {
     private class MessageReader {
 
         private WebSocketMessage webSocketMessage;
-        private WebSocketGetMessages webSocketGetMessages;
+        private WebSocketMessages webSocketMessages;
         private WebSocketIncomingMessage webSocketIncomingMessage;
 
         MessageReader(WebSocketIncomingMessage webSocketIncomingMessage) {
@@ -117,41 +113,22 @@ public class MessengerDatabaseHelper extends DaoMaster.OpenHelper {
             this.webSocketMessage = webSocketMessage;
         }
 
-        MessageReader(WebSocketGetMessages webSocketGetMessages) {
-            this.webSocketGetMessages = webSocketGetMessages;
+        MessageReader(WebSocketMessages webSocketMessages) {
+            this.webSocketMessages = webSocketMessages;
         }
 
-        MessageEntity getIncomingMessageEntity() {
-
-            WebSocketIncomingMessage incomingMessage =
-                    (WebSocketIncomingMessage) webSocketMessage.getWebSocketData();
+        MessageEntity getIncomingMessage() {
 
             ThreadEntity threadEntity = mThreadEntityDao
                     .queryBuilder()
-                    .where(ThreadEntityDao.Properties.UserId.eq(incomingMessage.getSender()))
+                    .where(ThreadEntityDao.Properties.UserId.eq(webSocketIncomingMessage.getSender()))
                     .unique();
 
             return new MessageEntity.Builder()
-                    .body(incomingMessage.getBody())
-                    .from(incomingMessage.getSender())
-                    .receivedTime(incomingMessage.getDateReceived())
-                    .sentTime(incomingMessage.getDateSent())
-                    .type(MessageEntity.INCOMING)
-                    .threadId(threadEntity.getThreadId())
-                    .build();
-        }
-
-        MessageEntity getIncomingMessageEntity(Object object) {
-            WebSocketIncomingMessage incomingMessage = webSocketIncomingMessage;
-            ThreadEntity threadEntity = mThreadEntityDao
-                    .queryBuilder()
-                    .where(ThreadEntityDao.Properties.UserId.eq(incomingMessage.getSender()))
-                    .unique();
-            return new MessageEntity.Builder()
-                    .body(incomingMessage.getBody())
-                    .from(incomingMessage.getSender())
-                    .receivedTime(incomingMessage.getDateReceived())
-                    .sentTime(incomingMessage.getDateSent())
+                    .body(webSocketIncomingMessage.getBody())
+                    .from(webSocketIncomingMessage.getSender())
+                    .receivedTime(webSocketIncomingMessage.getDateReceived())
+                    .sentTime(webSocketIncomingMessage.getDateSent())
                     .type(MessageEntity.INCOMING)
                     .threadId(threadEntity.getThreadId())
                     .build();
@@ -179,7 +156,7 @@ public class MessengerDatabaseHelper extends DaoMaster.OpenHelper {
 
         List<MessageEntity> getIncomingMessages() {
 
-            List<WebSocketIncomingMessage> incomingMessages = webSocketGetMessages.getMessages();
+            List<WebSocketIncomingMessage> incomingMessages = webSocketMessages.getMessages();
 
             if (incomingMessages != null && !incomingMessages.isEmpty()) {
                 ThreadEntity threadEntity = mThreadEntityDao

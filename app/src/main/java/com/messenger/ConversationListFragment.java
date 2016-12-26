@@ -3,16 +3,14 @@ package com.messenger;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 
-import com.messenger.animation.FadeInAnimator;
 import com.messenger.animation.SlideInLeftAnimator;
 import com.messenger.database.model.ThreadEntity;
 import com.messenger.database.model.ThreadEntityDao;
-import com.messenger.database.pojo.WebSocketGetMessages;
+import com.messenger.database.pojo.WebSocketMessages;
 import com.messenger.database.pojo.WebSocketIncomingMessage;
 import com.messenger.events.MessageEvent;
 import com.messenger.events.WebSocketMessageEvent;
@@ -135,8 +133,8 @@ public class ConversationListFragment extends ButterKnifeFragment
     public void onEvent(MessageEvent messageEvent) {
 
         if (messageEvent instanceof WebSocketMessageEvent) {
-            WebSocketGetMessages webSocketGetMessages = (WebSocketGetMessages) messageEvent.getMessage();
-            List<WebSocketIncomingMessage> webSocketIncomingMessage = webSocketGetMessages.getMessages();
+            WebSocketMessages webSocketMessages = (WebSocketMessages) messageEvent.getMessage();
+            List<WebSocketIncomingMessage> webSocketIncomingMessage = webSocketMessages.getMessages();
             WebSocketIncomingMessage mLastIncomingMessage = webSocketIncomingMessage.get(webSocketIncomingMessage.size() - 1);
             reload();
         }

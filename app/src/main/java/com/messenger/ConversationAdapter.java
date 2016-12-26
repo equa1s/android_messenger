@@ -73,6 +73,11 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
     }
 
     @Override
+    public void onViewRecycled(ViewHolder holder) {
+        holder.getView().unbind();
+    }
+
+    @Override
     public int getItemCount() {
         return mMessages.size();
     }
