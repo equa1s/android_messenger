@@ -6,6 +6,8 @@ import com.messenger.database.MessengerDatabaseHelper;
 
 
 /**
+ * Application context.
+ *
  * @author equals on 10.11.16.
  */
 public class ApplicationContext extends Application {

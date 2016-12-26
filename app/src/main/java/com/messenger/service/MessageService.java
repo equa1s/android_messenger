@@ -13,15 +13,19 @@ import com.messenger.ApplicationContext;
 import com.messenger.database.MessengerDatabaseHelper;
 import com.messenger.database.model.MessageEntity;
 import com.messenger.database.model.ThreadEntity;
+import com.messenger.database.pojo.IWebSocketData;
 import com.messenger.database.pojo.WebSocketGetMessages;
+import com.messenger.database.pojo.WebSocketIncomingMessage;
 import com.messenger.database.pojo.WebSocketMessage;
 import com.messenger.database.pojo.WebSocketOutgoingMessage;
+import com.messenger.events.IncomingMessageEvent;
 import com.messenger.events.MessageEvent;
 import com.messenger.events.OutgoingMessageEvent;
 import com.messenger.events.WebSocketMessageEvent;
 import com.messenger.notifications.MessageNotifier;
 import com.messenger.notifications.NotificationManager;
 import com.messenger.util.GsonUtils;
+import com.messenger.util.NetworkUtil;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -36,6 +40,8 @@ import okhttp3.ws.WebSocket;
 /**
  * Message service to handle sending/receiving messages
  *  through {@link WebSocket}.
+ *
+ * TODO: Need to improve this service, because of absent internet connection happens memory leak.
  *
  * @author equals on 16.11.16.
  */
@@ -57,8 +63,14 @@ public class MessageService
         mMessenger = new Messenger(new MessageServiceHandler(this));
     }
 
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        /*if (NetworkUtil.isNetworkAvailable(this)) {
+            webSocketConnection.enqueue();
+        } else {
+            webSocketConnection.cancel();
+        }*/
         return START_STICKY;
     }
 
@@ -74,25 +86,32 @@ public class MessageService
         disconnect();
     }
 
+    /*
     @Override
     public void onOpen(WebSocket mWebSocket, Response response) {
 
     }
+    */
 
     @Override
     public void onFailure(IOException e, Response response) {
-
         Log.d(TAG, "Failed: " + e.getMessage());
-
         disconnect();
-
-        // info: if web socket was failed then try to re-create it
         webSocketConnection = new WebSocketConnection(this);
     }
 
+    /**
+     * Handle received list of messages.
+     *
+     * @param iWebSocketData Base type of all web socket messages that can be received.
+     */
     @Override
-    public void onMessage(WebSocketGetMessages webSocketGetMessages) {
-        handleIncomingMessages(webSocketGetMessages);
+    public void onMessage(IWebSocketData iWebSocketData) {
+        if (iWebSocketData instanceof WebSocketGetMessages) {
+            handleIncomingMessages((WebSocketGetMessages) iWebSocketData);
+        } else if (iWebSocketData instanceof WebSocketIncomingMessage) {
+            handleIncomingMessage((WebSocketIncomingMessage) iWebSocketData);
+        }
     }
 
     @Override
@@ -153,10 +172,51 @@ public class MessageService
                         .update(staleThreadEntity);
 
                 if (MessageNotifier.isVisibleThread(threadId)) {
+                    Log.d(TAG, "Thread is visible, so just send an event to reload a list view. ");
                     sendEvent(new WebSocketMessageEvent(webSocketGetMessage));
                 } else {
+                    Log.d(TAG, "Thread is invisible, show a notification. ");
                     NotificationManager.showNotification(this, messageEntity.getFrom(), messageEntity.getBody());
                 }
+            }
+        }
+
+    }
+
+    /**
+     * Peace of shit.
+     *
+     * @param webSocketIncomingMessage Incoming message from another recipient.
+     */
+    private void handleIncomingMessage(WebSocketIncomingMessage webSocketIncomingMessage) {
+
+        MessageEntity message = getMessengerDatabaseHelper()
+                .readIncomingMessage(webSocketIncomingMessage, null);
+
+        if (message != null) {
+            getMessengerDatabaseHelper()
+                    .getMessageEntityDao()
+                    .insert(message);
+
+            long threadId = message.getThreadId();
+
+            ThreadEntity staleThreadEntity = getMessengerDatabaseHelper()
+                    .getThreadEntityDao()
+                    .load(threadId);
+
+            // update message for stale thread entity
+            staleThreadEntity.setLastMessage(message.getBody());
+
+            getMessengerDatabaseHelper()
+                    .getThreadEntityDao()
+                    .update(staleThreadEntity);
+
+            if (MessageNotifier.isVisibleThread(threadId)) {
+                Log.d(TAG, "Thread is visible, so just send an event to reload a list view. ");
+                sendEvent(new IncomingMessageEvent(webSocketIncomingMessage));
+            } else {
+                Log.d(TAG, "Thread is invisible, show a notification. ");
+                NotificationManager.showNotification(this, message.getFrom(), message.getBody());
             }
         }
 

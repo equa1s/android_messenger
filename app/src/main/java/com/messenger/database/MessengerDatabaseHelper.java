@@ -59,8 +59,12 @@ public class MessengerDatabaseHelper extends DaoMaster.OpenHelper {
         return mUserEntityDao;
     }
 
-    public MessageEntity readIncomingMessage(WebSocketMessage webSocketMessage) {
+    public MessageEntity readIncomingMessage(WebSocketIncomingMessage webSocketMessage) {
         return new MessageReader(webSocketMessage).getIncomingMessageEntity();
+    }
+
+    public MessageEntity readIncomingMessage(WebSocketIncomingMessage webSocketIncomingMessage, Object object) {
+        return new MessageReader(webSocketIncomingMessage).getIncomingMessageEntity(object);
     }
 
     public MessageEntity readOutgoingMessage(WebSocketMessage webSocketMessage) {
@@ -103,6 +107,11 @@ public class MessengerDatabaseHelper extends DaoMaster.OpenHelper {
 
         private WebSocketMessage webSocketMessage;
         private WebSocketGetMessages webSocketGetMessages;
+        private WebSocketIncomingMessage webSocketIncomingMessage;
+
+        MessageReader(WebSocketIncomingMessage webSocketIncomingMessage) {
+            this.webSocketIncomingMessage = webSocketIncomingMessage;
+        }
 
         MessageReader(WebSocketMessage webSocketMessage) {
             this.webSocketMessage = webSocketMessage;
@@ -122,6 +131,22 @@ public class MessengerDatabaseHelper extends DaoMaster.OpenHelper {
                     .where(ThreadEntityDao.Properties.UserId.eq(incomingMessage.getSender()))
                     .unique();
 
+            return new MessageEntity.Builder()
+                    .body(incomingMessage.getBody())
+                    .from(incomingMessage.getSender())
+                    .receivedTime(incomingMessage.getDateReceived())
+                    .sentTime(incomingMessage.getDateSent())
+                    .type(MessageEntity.INCOMING)
+                    .threadId(threadEntity.getThreadId())
+                    .build();
+        }
+
+        MessageEntity getIncomingMessageEntity(Object object) {
+            WebSocketIncomingMessage incomingMessage = webSocketIncomingMessage;
+            ThreadEntity threadEntity = mThreadEntityDao
+                    .queryBuilder()
+                    .where(ThreadEntityDao.Properties.UserId.eq(incomingMessage.getSender()))
+                    .unique();
             return new MessageEntity.Builder()
                     .body(incomingMessage.getBody())
                     .from(incomingMessage.getSender())

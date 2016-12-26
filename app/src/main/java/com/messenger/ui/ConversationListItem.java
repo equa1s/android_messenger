@@ -17,9 +17,8 @@ import butterknife.ButterKnife;
 /**
  * @author equals on 21.11.16.
  */
-public class ConversationListItem
-        extends RelativeLayout
-         implements BindConversationListItem {
+public class ConversationListItem extends RelativeLayout
+         implements BindableConversationListItem, Unbindable {
 
     private ThreadEntity mThreadEntity;
 

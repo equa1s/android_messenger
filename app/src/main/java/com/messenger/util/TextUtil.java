@@ -3,6 +3,8 @@ package com.messenger.util;
 import com.amulyakhare.textdrawable.TextDrawable;
 
 /**
+ * Utility to work with text.
+ *
  * @author equals on 22.11.16.
  */
 public class TextUtil {

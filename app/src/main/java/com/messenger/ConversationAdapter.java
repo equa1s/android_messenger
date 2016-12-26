@@ -9,7 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.messenger.database.model.MessageEntity;
-import com.messenger.ui.BindConversationItem;
+import com.messenger.ui.BindableConversationItem;
 
 import java.util.List;
 
@@ -32,8 +32,8 @@ public class ConversationAdapter extends RecyclerView.Adapter<ConversationAdapte
             super(itemView);
         }
 
-        public BindConversationItem getView() {
-            return (BindConversationItem) itemView;
+        public BindableConversationItem getView() {
+            return (BindableConversationItem) itemView;
         }
     }
 

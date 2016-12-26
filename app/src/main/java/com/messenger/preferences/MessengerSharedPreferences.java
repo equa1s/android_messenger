@@ -10,10 +10,10 @@ import android.preference.PreferenceManager;
  */
 public class MessengerSharedPreferences {
 
-    private static final String PREF_USER_LOGIN = "pref_user_login";
-    private static final String PREF_USER_PASSWORD = "pref_user_password";
-    private static final String PREF_FIRST_START = "pref_first_start";
-    private static final String PREF_COOKIES = "pref_user_cookies";
+    private static final String PREF_USER_LOGIN     = "pref_user_login";
+    private static final String PREF_USER_PASSWORD  = "pref_user_password";
+    private static final String PREF_FIRST_START    = "pref_first_start";
+    private static final String PREF_COOKIES        = "pref_user_cookies";
 
     public static boolean isFirstStart(Context context) {
         return getBooleanPreference(context, PREF_FIRST_START, false);

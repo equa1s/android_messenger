@@ -8,7 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.messenger.database.model.ThreadEntity;
-import com.messenger.ui.BindConversationListItem;
+import com.messenger.ui.BindableConversationListItem;
 import com.messenger.ui.ConversationListItem;
 
 import java.util.List;
@@ -36,8 +36,8 @@ public class ConversationListAdapter extends RecyclerView.Adapter<ConversationLi
                 }
             });
         }
-        public BindConversationListItem getView() {
-            return (BindConversationListItem) itemView;
+        public BindableConversationListItem getView() {
+            return (BindableConversationListItem) itemView;
         }
 
     }

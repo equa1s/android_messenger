@@ -5,13 +5,14 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import com.messenger.database.MessengerDatabaseHelper;
 import com.messenger.preferences.MessengerSharedPreferences;
 import com.messenger.service.MessageService;
 
 import butterknife.ButterKnife;
 
 /**
+ * Base toolbar activity which helps to handle current application state.
+ *
  * @author equals on 10.11.16.
  */
 public abstract class BaseToolbarActivity extends BaseActivity {
@@ -22,18 +23,10 @@ public abstract class BaseToolbarActivity extends BaseActivity {
     private static final int STATE_NEED_REGISTRATION = 1;
 
     @Override
-    protected void onPreCreate(MessengerDatabaseHelper mMessengerDatabaseHelper) {
-    }
-
-    @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         routeApplicationState();
         super.onCreate(savedInstanceState);
         ButterKnife.bind(this);
-    }
-
-    @Override
-    protected void onPostCreate() {
     }
 
     @Override

@@ -29,19 +29,9 @@ public class NewUserActivity extends BaseToolbarActivity implements UserService.
     @BindView(R.id.progress_bar) ProgressBar progressBar;
 
     @Override
-    protected void onPreCreate(MessengerDatabaseHelper mMessengerDatabaseHelper) {
-
-    }
-
-    @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.mUserController = new UserController(this);
-    }
-
-    @Override
-    protected void onPostCreate() {
-
     }
 
     @Override

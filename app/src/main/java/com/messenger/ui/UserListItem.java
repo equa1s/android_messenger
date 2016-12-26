@@ -21,7 +21,7 @@ import butterknife.ButterKnife;
  */
 public class UserListItem
         extends LinearLayout
-         implements BindUserListItem {
+         implements BindableUserListItem, Unbindable {
 
     private UserEntity userEntity;
 

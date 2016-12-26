@@ -4,6 +4,7 @@ import android.content.Context;
 import android.os.Vibrator;
 
 /**
+ * Utility to work with system hardware.
  *
  * @author equals on 13.12.16.
  */

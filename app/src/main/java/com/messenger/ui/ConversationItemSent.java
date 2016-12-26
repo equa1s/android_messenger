@@ -22,7 +22,8 @@ import butterknife.ButterKnife;
  *
  * @author equals on 15.11.16.
  */
-public class ConversationItemSent extends RelativeLayout implements BindConversationItem {
+public class ConversationItemSent extends RelativeLayout
+        implements BindableConversationItem, Unbindable {
 
     private MessageEntity messageEntity;
 

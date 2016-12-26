@@ -1,7 +1,6 @@
 package com.messenger.api.controller;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.messenger.api.RetrofitManager;
 import com.messenger.api.exception.NonSuccessfulResponseException;

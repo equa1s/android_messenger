@@ -18,23 +18,17 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.messenger.animation.FadeInAnimator;
-import com.messenger.database.MessengerDatabaseHelper;
 import com.messenger.database.model.MessageEntity;
 import com.messenger.database.model.MessageEntityDao;
 import com.messenger.database.model.ThreadEntity;
 import com.messenger.database.model.ThreadEntityDao;
-import com.messenger.database.pojo.WebSocketGetMessages;
-import com.messenger.database.pojo.WebSocketIncomingMessage;
 import com.messenger.database.pojo.WebSocketMessage;
 import com.messenger.database.pojo.WebSocketOutgoingMessage;
-import com.messenger.events.IncomingMessageEvent;
 import com.messenger.events.MessageEvent;
-import com.messenger.events.OutgoingMessageEvent;
-import com.messenger.events.WebSocketMessageEvent;
 import com.messenger.notifications.MessageNotifier;
-import com.messenger.notifications.NotificationManager;
 import com.messenger.service.MessageService;
 import com.messenger.service.WebSocketConnection;
+import com.messenger.ui.divider.BottomOffsetDecoration;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -68,7 +62,6 @@ public class ConversationActivity extends BaseToolbarActivity implements View.On
     private ConversationAdapter mConversationAdapter;
     private String mRecipient;
     private List<MessageEntity> mMessages = new ArrayList<>();
-    private long mThreadId;
     boolean mBound = false;
 
     @Override
@@ -76,11 +69,6 @@ public class ConversationActivity extends BaseToolbarActivity implements View.On
         super.onStart();
         EventBus.getDefault().register(this);
         bindService(new Intent(this, MessageService.class), mConnection, Context.BIND_AUTO_CREATE);
-    }
-
-    @Override
-    protected void onPreCreate(MessengerDatabaseHelper mMessengerDatabaseHelper) {
-
     }
 
     @Override
@@ -97,10 +85,8 @@ public class ConversationActivity extends BaseToolbarActivity implements View.On
         }
 
         mMessages = getMessages();
-        mThreadId = setThreadId();
-
-
-        MessageNotifier.setVisibleThread(mThreadId);
+        
+        MessageNotifier.setVisibleThread(getThreadId());
 
         setRecyclerView();
 
@@ -111,17 +97,13 @@ public class ConversationActivity extends BaseToolbarActivity implements View.On
         mRecyclerView.setHasFixedSize(true);
         mConversationAdapter = new ConversationAdapter(this, mMessages);
         mRecyclerView.setItemAnimator(new FadeInAnimator());
+        mRecyclerView.addItemDecoration(new BottomOffsetDecoration(60));
         mRecyclerView.setAdapter(mConversationAdapter);
     }
 
     @Override
     protected int setLayout() {
         return R.layout.conversation_activity;
-    }
-
-    @Override
-    protected void onPostCreate() {
-
     }
 
     @Override
@@ -141,38 +123,13 @@ public class ConversationActivity extends BaseToolbarActivity implements View.On
     @SuppressWarnings("unused")
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEvent(MessageEvent messageEvent) {
-
-        if (messageEvent instanceof OutgoingMessageEvent) {
-            // get outgoing message
-            WebSocketOutgoingMessage webSocketOutgoingMessage = (WebSocketOutgoingMessage) messageEvent.getMessage();
-            // just reload view because we see current conversation
-            reload();
-        } else if (messageEvent instanceof IncomingMessageEvent) {
-
-            // TODO : need to review this logic and then re-write
-            // get incoming message
-            WebSocketIncomingMessage webSocketIncomingMessage = (WebSocketIncomingMessage) messageEvent.getMessage();
-            // if conversation is not visible
-            if (!MessageNotifier.isVisibleThread(mThreadId)) {
-                // then notify user about new message
-                NotificationManager.showNotification(this, webSocketIncomingMessage.getSender(),
-                        webSocketIncomingMessage.getBody());
-            } else {
-                // otherwise just reload an adapter
-                reload();
-            }
-        } else if (messageEvent instanceof WebSocketMessageEvent) {
-            WebSocketGetMessages webSocketGetMessages = (WebSocketGetMessages) messageEvent.getMessage();
-            List<WebSocketIncomingMessage> webSocketIncomingMessage = webSocketGetMessages.getMessages();
-            WebSocketIncomingMessage mLastIncomingMessage = webSocketIncomingMessage.get(webSocketIncomingMessage.size() - 1);
-            reload();
-        }
+        notifyDataChanged();
     }
 
     /**
      * Load messages from database and redraw conversation adapter.
      */
-    private void reload() {
+    private void notifyDataChanged() {
         mMessages = getMessages();
         mConversationAdapter.setMessages(mMessages);
         mRecyclerView.smoothScrollToPosition(mMessages.size() - 1);
@@ -184,7 +141,7 @@ public class ConversationActivity extends BaseToolbarActivity implements View.On
         return messageEntityQueryBuilder.list();
     }
 
-    private long setThreadId() {
+    private long getThreadId() {
         QueryBuilder<ThreadEntity> threadEntityQueryBuilder = getMessengerDatabaseHelper().getThreadEntityDao().queryBuilder();
         threadEntityQueryBuilder.where(ThreadEntityDao.Properties.UserId.eq(mRecipient));
         return threadEntityQueryBuilder.unique().getThreadId();

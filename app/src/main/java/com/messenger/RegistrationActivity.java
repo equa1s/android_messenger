@@ -15,21 +15,17 @@ import android.widget.TextView;
 
 import com.messenger.api.controller.RegistrationController;
 import com.messenger.api.service.RegistrationService;
-import com.messenger.database.MessengerDatabaseHelper;
 import com.messenger.database.model.UserEntity;
 import com.messenger.notifications.NotificationManager;
 import com.messenger.preferences.MessengerSharedPreferences;
-import com.messenger.util.GsonUtils;
 import com.messenger.util.NetworkUtil;
 import com.messenger.util.Util;
-
-import java.io.IOException;
 
 import butterknife.BindView;
 import retrofit2.Response;
 
 /**
- * Activity which presents in-app registration/login
+ * Activity which presents in-app registration/login.
  *
  * @author equals on 10.11.16.
  */
@@ -55,10 +51,6 @@ public class RegistrationActivity
     @BindView(R.id.error_title) TextView errorTitle;
 
     @Override
-    protected void onPreCreate(MessengerDatabaseHelper mMessengerDatabaseHelper) {
-    }
-
-    @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -71,11 +63,8 @@ public class RegistrationActivity
         mSignUp.setOnClickListener(this);
         mSignIn.setOnClickListener(this);
 
-    }
-
-    @Override
-    protected void onPostCreate() {
         fadeIn = AnimationUtils.loadAnimation(this, R.anim.fade_in);
+
     }
 
     @Override

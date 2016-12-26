@@ -32,19 +32,9 @@ public class HelpActivity extends BaseToolbarActivity {
     @BindView(R.id.test_login_edit_text) EditText testEditText;
 
     @Override
-    protected void onPreCreate(MessengerDatabaseHelper mMessengerDatabaseHelper) {
-        super.onPreCreate(mMessengerDatabaseHelper);
-    }
-
-    @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setToolbar();
-    }
-
-    @Override
-    protected void onPostCreate() {
-        super.onPostCreate();
     }
 
     @Override

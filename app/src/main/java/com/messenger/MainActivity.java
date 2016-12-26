@@ -16,9 +16,6 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.messenger.animation.ZoomOutPageTransformer;
-import com.messenger.database.MessengerDatabaseHelper;
-import com.messenger.database.model.UserEntity;
-import com.messenger.database.model.UserEntityDao;
 import com.messenger.preferences.MessengerSharedPreferences;
 
 import butterknife.BindView;
@@ -41,14 +38,12 @@ public class MainActivity extends BaseToolbarActivity implements PopupMenu.OnMen
     protected ConversationListFragment mConversationListFragment = null;
 
     @Override
-    protected void onPreCreate(MessengerDatabaseHelper mMessengerDatabaseHelper) {
-        mUsersFragment = UserListFragment.getInstance();
-        mConversationListFragment = ConversationListFragment.getInstance();
-    }
-
-    @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        mUsersFragment = UserListFragment.getInstance();
+        mConversationListFragment = ConversationListFragment.getInstance();
+
         Log.d(TAG, "Current user: " + MessengerSharedPreferences.getUserLogin(this) + ", " + MessengerSharedPreferences.getUserPassword(this));
 
         if (getSupportActionBar() != null) {
@@ -66,11 +61,6 @@ public class MainActivity extends BaseToolbarActivity implements PopupMenu.OnMen
     @Override
     protected int setLayout() {
         return R.layout.main_activity;
-    }
-
-    @Override
-    protected void onPostCreate() {
-
     }
 
     @Override

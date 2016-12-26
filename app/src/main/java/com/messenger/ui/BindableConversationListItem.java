@@ -7,6 +7,6 @@ import com.messenger.database.model.ThreadEntity;
 /**
  * @author equals on 21.11.16.
  */
-public interface BindConversationListItem extends Unbind {
+public interface BindableConversationListItem {
     void bind(@NonNull ThreadEntity mThreads);
 }

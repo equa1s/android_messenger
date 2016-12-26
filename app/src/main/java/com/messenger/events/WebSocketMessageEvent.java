@@ -4,6 +4,8 @@ import com.messenger.database.pojo.IWebSocketData;
 import com.messenger.database.pojo.WebSocketGetMessages;
 
 /**
+ * Simple {@link org.greenrobot.eventbus.EventBus} message event to
+ * handle incoming pool of messages in activity.
  *
  * @author equals on 13.12.16.
  */

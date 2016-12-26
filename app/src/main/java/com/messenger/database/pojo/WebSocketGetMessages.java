@@ -6,7 +6,9 @@ import com.google.gson.annotations.SerializedName;
 import java.util.List;
 
 /**
- * Web socket message ...
+ * Class presents web socket messages from server pool of
+ * messages that will sent to recipient but not delivered
+ * because of internet connection.
  *
  * @author equals on 14.12.16.
  */

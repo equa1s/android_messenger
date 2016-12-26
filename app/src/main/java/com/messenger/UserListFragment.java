@@ -26,6 +26,8 @@ import butterknife.BindView;
 import butterknife.OnClick;
 
 /**
+ * Fragment that displays all user's contacts.
+ *
  * @author equals on 17.11.16.
  */
 public class UserListFragment extends ButterKnifeFragment

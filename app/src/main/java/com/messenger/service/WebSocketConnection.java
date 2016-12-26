@@ -3,13 +3,17 @@ package com.messenger.service;
 import android.content.Context;
 import android.util.Log;
 
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.messenger.BuildConfig;
+import com.messenger.database.pojo.IWebSocketData;
 import com.messenger.database.pojo.WebSocketGetMessages;
 import com.messenger.database.pojo.WebSocketIncomingMessage;
 import com.messenger.database.pojo.WebSocketMessage;
 import com.messenger.preferences.MessengerSharedPreferences;
 import com.messenger.util.Base64;
 import com.messenger.util.GsonUtils;
+import com.messenger.util.NetworkUtil;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -39,14 +43,18 @@ public class WebSocketConnection implements WebSocketListener {
 
     private static final String ENDPOINT = "/v1/websocket";
 
+    private Context context;
     private WebSocketMessageReceiver mWebSocketMessageReceiver;
     private WebSocket mWebSocket;
+    private WebSocketCall mWebSocketCall;
 
     WebSocketConnection(Context context) {
         this.mWebSocketMessageReceiver = (WebSocketMessageReceiver) context;
+        this.context = context;
 
         OkHttpClient client = new OkHttpClient.Builder()
-                .readTimeout(0, TimeUnit.MILLISECONDS)
+                .connectTimeout(60, TimeUnit.SECONDS)
+                .readTimeout(60, TimeUnit.SECONDS)
                 .build();
 
         String wsUrl = BuildConfig.MESSENGER_URL
@@ -57,23 +65,32 @@ public class WebSocketConnection implements WebSocketListener {
                 .header("Authorization", "Basic " + Base64.encodeBytes((MessengerSharedPreferences.getUserLogin(context) + ":" + MessengerSharedPreferences.getUserPassword(context)).getBytes()))
                 .build();
 
-        WebSocketCall.create(client, request).enqueue(this);
+        mWebSocketCall = WebSocketCall.create(client, request);
+        enqueue();
+    }
+
+    public void enqueue() {
+        mWebSocketCall.enqueue(this);
+    }
+
+    public void cancel() {
+        mWebSocketCall.cancel();
     }
 
     @Override
     public void onOpen(final WebSocket webSocket, Response response) {
-        this.mWebSocket = webSocket;
-        try {
-            mWebSocket.sendMessage(RequestBody.create(WebSocket.TEXT, GsonUtils.toJson(new WebSocketMessage.Builder()
-                    .data(null)
-                    .count(null)
-                    .method(Method.GET)
-                    .build())));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        if (NetworkUtil.isNetworkAvailable(context)) {
 
-        closeResponseBody(response);
+            mWebSocket = webSocket;
+
+            try {
+                mWebSocket.sendMessage(RequestBody.create(WebSocket.TEXT, GsonUtils.toJson(new WebSocketMessage.Builder().data(null).count(null).method(Method.GET).build())));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            closeResponseBody(response);
+        }
     }
 
     @Override
@@ -85,15 +102,22 @@ public class WebSocketConnection implements WebSocketListener {
     public void onMessage(ResponseBody message) throws IOException {
         String response = message.string();
             message.close();
-        Log.d(TAG, "Got message from server: " + response);
+        Log.d(TAG, "response: " + response);
 
-        WebSocketGetMessages webSocketGetMessages = GsonUtils.fromJson(response, WebSocketGetMessages.class);
-        Log.d(TAG, "Message: " + webSocketGetMessages.toString());
+        // XXX: I'm really sorry for this shit
+        if (response.contains("method")) {
+            JsonParser parser = new JsonParser();
+            JsonObject obj = parser.parse(response).getAsJsonObject();
+            String data = obj.get("data").toString();
+            WebSocketIncomingMessage webSocketMessage = GsonUtils.fromJson(data, WebSocketIncomingMessage.class);
+            if (mWebSocketMessageReceiver != null) mWebSocketMessageReceiver.onMessage(webSocketMessage);
+            sendResponse(webSocketMessage);
+        } else {
+            WebSocketGetMessages webSocketGetMessages = GsonUtils.fromJson(response, WebSocketGetMessages.class);
+            if (mWebSocketMessageReceiver != null) mWebSocketMessageReceiver.onMessage(webSocketGetMessages);
+            sendResponse(webSocketGetMessages);
+        }
 
-        if (mWebSocketMessageReceiver != null) mWebSocketMessageReceiver.onMessage(webSocketGetMessages);
-
-        Log.d(TAG, "Response: " + webSocketGetMessages);
-        sendResponse(webSocketGetMessages);
     }
 
     @Override
@@ -114,19 +138,39 @@ public class WebSocketConnection implements WebSocketListener {
      *              "body":[1481718508000, 1481718531000, ... ]
      *            }
      *
-     * @param webSocketGetMessages List of received messages from server
+     *            ... or just one item for single messages.
+     *
+     *            {
+     *              "method":"/read",
+     *              "body":[1481718508000]
+     *            }
+     *
+     * @param iWebSocketData Message or list of messages received from server
      * @throws IOException
      */
-    private void sendResponse(WebSocketGetMessages webSocketGetMessages) throws IOException {
-        List<WebSocketIncomingMessage> messages = webSocketGetMessages.getMessages();
-        if (messages != null && !messages.isEmpty()) {
+    private void sendResponse(IWebSocketData iWebSocketData) throws IOException {
+        if (iWebSocketData instanceof WebSocketGetMessages) {
+            List<WebSocketIncomingMessage> messages = ((WebSocketGetMessages)iWebSocketData).getMessages();
+            if (messages != null && !messages.isEmpty()) {
 
-            Map<String, Object> response = new HashMap<>();
-            List<Long> timestamps = new ArrayList<>();
+                Map<String, Object> response = new HashMap<>();
+                List<Long> timestamps = new ArrayList<>();
 
                 for (WebSocketIncomingMessage msg : messages) {
                     timestamps.add(msg.getDateReceived());
                 }
+
+                response.put("method", Method.READ);
+                response.put("body", timestamps);
+
+                send(RequestBody.create(WebSocket.TEXT, GsonUtils.toJson(response)));
+            }
+        } else if (iWebSocketData instanceof WebSocketIncomingMessage) {
+            WebSocketIncomingMessage webSocketIncomingMessage = ((WebSocketIncomingMessage) iWebSocketData);
+            Map<String, Object> response = new HashMap<>();
+            List<Long> timestamps = new ArrayList<>();
+
+            timestamps.add(webSocketIncomingMessage.getDateReceived());
 
             response.put("method", Method.READ);
             response.put("body", timestamps);
@@ -192,7 +236,7 @@ public class WebSocketConnection implements WebSocketListener {
          * <p><b>Do not</b> use this callback to write to the web socket. Start a new thread or use
          * another thread in your application.
          */
-        void onOpen(final WebSocket mWebSocket, Response response);
+        // void onOpen(final WebSocket mWebSocket, Response response);
 
         /**
          * Called when a server message is received. The {@code type} indicates whether the {@code
@@ -205,7 +249,7 @@ public class WebSocketConnection implements WebSocketListener {
          * <p>The {@linkplain ResponseBody#contentType() content type} of {@code message} will be either
          * {@link WebSocket#TEXT} or {@link WebSocket#BINARY} which indicates the format of the message.
          */
-        void onMessage(WebSocketGetMessages webSocketGetMessages);
+        void onMessage(IWebSocketData iWebSocketData);
 
         /**
          * Called when the server sends a disconnect message. This may have been initiated from a call to

@@ -8,14 +8,14 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.messenger.database.model.UserEntity;
-import com.messenger.ui.BindUserListItem;
+import com.messenger.ui.BindableUserListItem;
 import com.messenger.ui.UserListItem;
 
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 /**
+ * Simple adapter to display all users.
+ *
  * @author equals on 14.11.16.
  */
 public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.ViewHolder> {
@@ -36,8 +36,8 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.ViewHo
             });
         }
 
-        BindUserListItem getItem() {
-            return (BindUserListItem) itemView;
+        BindableUserListItem getItem() {
+            return (BindableUserListItem) itemView;
         }
     }
 
@@ -58,7 +58,6 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.ViewHo
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
         UserEntity userEntity = data.get(position);
-            holder.getItem().unbind();
             holder.getItem().bind(userEntity);
     }
 
@@ -74,27 +73,6 @@ public class UserListAdapter extends RecyclerView.Adapter<UserListAdapter.ViewHo
     protected void setData(List<UserEntity> data) {
         this.data = data;
         notifyDataSetChanged();
-    }
-
-    public void insertUser(UserEntity userEntity) {
-        data.add(userEntity);
-        sortUsers();
-        notifyItemInserted(data.indexOf(userEntity));
-    }
-
-    public void removeUser(UserEntity userEntity) {
-        data.remove(userEntity);
-        sortUsers();
-        notifyItemRemoved(data.indexOf(userEntity));
-    }
-
-    private void sortUsers() {
-        Collections.sort(data, new Comparator<UserEntity>() {
-            @Override
-            public int compare(UserEntity userEntity0, UserEntity userEntity1) {
-                return userEntity0.getLogin().compareTo(userEntity1.getLogin());
-            }
-        });
     }
 
     interface UserItemClickListener {

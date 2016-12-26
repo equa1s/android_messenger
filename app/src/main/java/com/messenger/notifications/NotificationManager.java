@@ -9,6 +9,8 @@ import com.messenger.util.SystemUtils;
 
 
 /**
+ * Notification handler.
+ *
  * @author equals on 14.11.16.
  */
 public class NotificationManager {

@@ -38,7 +38,7 @@ public class WebSocketMessage {
                 "\n\tmethod='" + method + '\'' +
                 ", \n\t\tdata=" + data +
                 ", \n\t\tcount=" + count +
-                "\n}";
+                "\n}\n";
     }
 
     public static final class Builder {

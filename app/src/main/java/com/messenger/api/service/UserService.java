@@ -10,6 +10,8 @@ import retrofit2.http.Header;
 import retrofit2.http.Headers;
 
 /**
+ * General {@link retrofit2.Retrofit} interface for work with users.
+ *
  * @author equals on 10.11.16.
  */
 public interface UserService {
