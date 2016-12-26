@@ -10,7 +10,6 @@ import android.widget.TextView;
 
 import com.messenger.api.controller.UserController;
 import com.messenger.api.service.UserService;
-import com.messenger.database.MessengerDatabaseHelper;
 
 import butterknife.BindView;
 import butterknife.OnClick;

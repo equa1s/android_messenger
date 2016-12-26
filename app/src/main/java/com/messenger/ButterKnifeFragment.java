@@ -13,6 +13,7 @@ import com.messenger.database.MessengerDatabaseHelper;
 import butterknife.ButterKnife;
 
 /**
+ * Base {@link ButterKnife} fragment.
  *
  * @author equals on 24.11.16.
  */

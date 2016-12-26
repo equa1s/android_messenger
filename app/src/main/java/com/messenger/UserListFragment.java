@@ -34,9 +34,9 @@ public class UserListFragment extends ButterKnifeFragment
         implements UserListAdapter.UserItemClickListener {
 
     private static final String TAG = UserListFragment.class.getSimpleName();
+
     public static final int _ID = 0;
     public static final int ADD_USER_REQUEST = 1;  // The request code
-    static final String USER_LOGIN = "user_login";
 
     private List<UserEntity> mUsers;
     private UserListAdapter mUserListAdapter;
@@ -93,7 +93,7 @@ public class UserListFragment extends ButterKnifeFragment
     @Override
     public void onUserClick(UserEntity userEntity) {
 
-        Log.d(TAG, "onUserClick: " + userEntity.getLogin());
+        Log.d(TAG, "Passed >> " + userEntity.getLogin().toUpperCase() + " >> user. ");
 
         ThreadEntityDao threadEntityDao = getMessengerDatabaseHelper().getThreadEntityDao();
 
@@ -102,9 +102,11 @@ public class UserListFragment extends ButterKnifeFragment
 
         ThreadEntity threadEntity = threadEntityQueryBuilder.unique();
 
+        Intent conversationActivity = new Intent(getContext(), ConversationActivity.class)
+                .putExtra(ConversationActivity.RECIPIENT_LOGIN, userEntity.getLogin());
+
         if (threadEntity != null) {
-            startActivity(new Intent(getContext(), ConversationActivity.class)
-                    .putExtra(ConversationActivity.RECIPIENT_LOGIN, userEntity.getLogin()));
+            startActivity(conversationActivity);
         } else {
             threadEntity = new ThreadEntity.Builder()
                     .userId(userEntity.getLogin())
@@ -112,8 +114,7 @@ public class UserListFragment extends ButterKnifeFragment
 
             threadEntityDao.insert(threadEntity);
 
-            startActivity(new Intent(getContext(), ConversationActivity.class)
-                    .putExtra(ConversationActivity.RECIPIENT_LOGIN, userEntity.getLogin()));
+            startActivity(conversationActivity);
         }
     }
 
@@ -122,7 +123,7 @@ public class UserListFragment extends ButterKnifeFragment
         if (requestCode == ADD_USER_REQUEST) {
             if (resultCode == Activity.RESULT_OK) {
 
-                String login = data.getStringExtra(USER_LOGIN); // get user_login from intent
+                String login = data.getStringExtra(ConversationActivity.RECIPIENT_LOGIN); // get user_login from intent
                 UserEntityDao mUserEntityDao = getMessengerDatabaseHelper().getUserEntityDao();
 
                 // trying to get user from db
@@ -133,10 +134,8 @@ public class UserListFragment extends ButterKnifeFragment
                 UserEntity oldUserEntity = oldUserEntityQueryBuilder.unique();
 
                 if (oldUserEntity != null) {
-                    // INFO : User exists > show error
-                    Log.wtf(TAG, "User: " + login.toUpperCase() + " exists!");
+                    Log.wtf(TAG, "User >> " + login.toUpperCase() + " >> exists!");
                 } else {
-                    // INFO : Insert ot db
                     UserEntity userEntity = new UserEntity.Builder()
                             .login(login)
                             .build();
